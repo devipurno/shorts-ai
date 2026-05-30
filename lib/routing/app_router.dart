@@ -10,6 +10,7 @@ import '../features/auth/screens/otp_verify_screen.dart';
 import '../features/auth/screens/reset_password_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
 import '../features/home/home_screen.dart';
+import '../features/library/library_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../shared/widgets/_dev/component_gallery.dart';
@@ -84,8 +85,7 @@ GoRouter createAppRouter({
           ),
           GoRoute(
             path: AppRoutes.library,
-            builder: (context, state) =>
-                const PlaceholderScreen(name: 'Library'),
+            builder: (context, state) => const LibraryScreen(),
           ),
           GoRoute(
             path: AppRoutes.create,

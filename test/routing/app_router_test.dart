@@ -9,6 +9,7 @@ import 'package:shorts_ai/core/theme/app_theme.dart';
 import 'package:shorts_ai/core/theme/app_typography.dart';
 import 'package:shorts_ai/features/auth/providers/auth_provider.dart';
 import 'package:shorts_ai/features/home/providers/home_provider.dart';
+import 'package:shorts_ai/features/library/providers/library_provider.dart';
 import 'package:shorts_ai/features/onboarding/providers/onboarding_provider.dart';
 import 'package:shorts_ai/features/splash/splash_screen.dart';
 import 'package:shorts_ai/routing/app_router.dart';
@@ -71,7 +72,7 @@ void main() {
 
     await tester.tap(find.text('Library').last);
     await _pumpRoute(tester);
-    expect(find.byKey(const Key('placeholder-Library')), findsOneWidget);
+    expect(find.byKey(const Key('library-screen')), findsOneWidget);
 
     await tester.tap(find.text('Create').last);
     await _pumpRoute(tester);
@@ -148,6 +149,7 @@ class _RouterHarness extends StatelessWidget {
         return ProviderScope(
           overrides: [
             homeDataProvider.overrideWith((ref) async => _emptyHomeData),
+            libraryDataProvider.overrideWith((ref) async => _emptyLibraryData),
           ],
           child: ColoredBox(
             color: AppColors.obsidian,
@@ -165,4 +167,13 @@ const _emptyHomeData = HomeData(
   streakCount: 1,
   tipOfTheDay: 'Test tip',
   hasUnreadNotifications: false,
+);
+
+const _emptyLibraryData = LibraryData(
+  projects: [],
+  totalCount: 0,
+  draftCount: 0,
+  processingCount: 0,
+  readyCount: 0,
+  publishedCount: 0,
 );
