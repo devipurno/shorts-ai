@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/auth/models/user.dart';
 import '../features/auth/providers/auth_provider.dart';
+import '../features/splash/splash_screen.dart';
 import '../shared/widgets/_dev/component_gallery.dart';
 import '../shared/widgets/main_shell.dart';
 import '../shared/widgets/placeholder_screen.dart';
@@ -36,7 +37,7 @@ GoRouter createAppRouter({
     routes: [
       GoRoute(
         path: AppRoutes.splash,
-        builder: (context, state) => const PlaceholderScreen(name: 'Splash'),
+        builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
         path: AppRoutes.onboarding,
@@ -189,6 +190,10 @@ String? _authRedirect(
   final isAuthEntryRoute = AppRoutes.authEntryRoutes.contains(path);
 
   if (kDebugMode && path == AppRoutes.devComponents) {
+    return null;
+  }
+
+  if (path == AppRoutes.splash) {
     return null;
   }
 

@@ -7,6 +7,7 @@ import 'package:shorts_ai/core/theme/app_colors.dart';
 import 'package:shorts_ai/core/theme/app_theme.dart';
 import 'package:shorts_ai/core/theme/app_typography.dart';
 import 'package:shorts_ai/features/auth/providers/auth_provider.dart';
+import 'package:shorts_ai/features/splash/splash_screen.dart';
 import 'package:shorts_ai/routing/app_router.dart';
 import 'package:shorts_ai/routing/routes.dart';
 
@@ -23,10 +24,13 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
 
-    expect(find.byKey(const Key('placeholder-Splash')), findsOneWidget);
-    expect(find.text(AppConstants.APP_NAME), findsOneWidget);
+    expect(find.byType(SplashScreen), findsOneWidget);
+    expect(find.byKey(const Key('splash-screen')), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
   });
 
   testWidgets('can navigate manually to home route', (tester) async {

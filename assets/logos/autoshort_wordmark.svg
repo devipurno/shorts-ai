@@ -1,0 +1,7 @@
+<svg width="960" height="240" viewBox="0 0 960 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="240" rx="48" fill="#0B0C10"/>
+  <rect x="36" y="36" width="168" height="168" rx="44" fill="#131418" stroke="#D4AF37" stroke-width="8"/>
+  <text x="72" y="146" fill="#D4AF37" font-family="Inter, Arial, sans-serif" font-size="76" font-weight="800" letter-spacing="-2">AS</text>
+  <text x="242" y="145" fill="#D4AF37" font-family="Inter, Arial, sans-serif" font-size="88" font-weight="800" letter-spacing="-2">AutoShort</text>
+  <path d="M247 172H704" stroke="#AA8826" stroke-width="6" stroke-linecap="round"/>
+</svg>

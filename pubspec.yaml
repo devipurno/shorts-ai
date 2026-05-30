@@ -65,6 +65,7 @@ dependencies:
   package_info_plus: ^10.1.0
   crypto: ^3.0.7
   riverpod_annotation: 3.0.3
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -83,6 +84,8 @@ dev_dependencies:
   custom_lint: ^0.8.1
   riverpod_lint: ^3.0.3
   mocktail: ^1.0.5
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -97,6 +100,10 @@ flutter:
 
   assets:
     - .env.local
+    - assets/images/
+    - assets/logos/
+    - assets/icons/
+    - assets/animations/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

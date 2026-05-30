@@ -39,6 +39,7 @@ void main() {
         child: MyApp(),
       ),
     );
+    await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
 
     final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
@@ -51,6 +52,6 @@ void main() {
       Theme.of(tester.element(find.byType(Scaffold))).colorScheme.primary,
       AppColors.gold,
     );
-    expect(find.byKey(const Key('placeholder-Login')), findsOneWidget);
+    expect(find.byKey(const Key('placeholder-Onboarding')), findsOneWidget);
   });
 }

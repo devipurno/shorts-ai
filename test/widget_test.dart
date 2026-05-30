@@ -10,7 +10,8 @@ void main() {
     AppTypography.setUseGoogleFontsForTest(false);
   });
 
-  testWidgets('App redirects unauthenticated user to login route', (
+  testWidgets('App shows splash then sends unauthenticated user to onboarding',
+      (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -18,8 +19,13 @@ void main() {
         child: MyApp(),
       ),
     );
+    await tester.pump();
+
+    expect(find.byKey(const Key('splash-screen')), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('placeholder-Login')), findsOneWidget);
+    expect(find.byKey(const Key('placeholder-Onboarding')), findsOneWidget);
   });
 }
