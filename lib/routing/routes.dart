@@ -38,6 +38,9 @@ class AppRoutes {
   static const privacySettings = '/settings/privacy';
   static const about = '/about';
 
+  // Debug only
+  static const devComponents = '/dev/components';
+
   static const mainTabs = [home, library, create, analytics, profile];
 
   static const authEntryRoutes = {

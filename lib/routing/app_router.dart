@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/auth/models/user.dart';
 import '../features/auth/providers/auth_provider.dart';
+import '../shared/widgets/_dev/component_gallery.dart';
 import '../shared/widgets/main_shell.dart';
 import '../shared/widgets/placeholder_screen.dart';
 import 'routes.dart';
@@ -171,6 +172,11 @@ GoRouter createAppRouter({
         path: AppRoutes.about,
         builder: (context, state) => const PlaceholderScreen(name: 'About'),
       ),
+      if (kDebugMode)
+        GoRoute(
+          path: AppRoutes.devComponents,
+          builder: (context, state) => const ComponentGallery(),
+        ),
     ],
   );
 }
@@ -181,6 +187,10 @@ String? _authRedirect(
 }) {
   final path = state.uri.path;
   final isAuthEntryRoute = AppRoutes.authEntryRoutes.contains(path);
+
+  if (kDebugMode && path == AppRoutes.devComponents) {
+    return null;
+  }
 
   if (authState is! Authenticated && !isAuthEntryRoute) {
     return AppRoutes.login;
