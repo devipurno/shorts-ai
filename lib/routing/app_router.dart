@@ -16,6 +16,7 @@ import '../features/onboarding/onboarding_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/subtitle/subtitle_studio_screen.dart';
+import '../features/thumbnail/thumbnail_editor_screen.dart';
 import '../shared/widgets/_dev/component_gallery.dart';
 import '../shared/widgets/main_shell.dart';
 import '../shared/widgets/placeholder_screen.dart';
@@ -114,9 +115,8 @@ GoRouter createAppRouter({
       ),
       GoRoute(
         path: AppRoutes.thumbnailEditor,
-        builder: (context, state) => PlaceholderScreen(
-          name: 'Thumbnail Editor',
-          detail: 'videoId: ${state.pathParameters['videoId']}',
+        builder: (context, state) => ThumbnailEditorScreen(
+          videoId: state.pathParameters['videoId'] ?? '',
         ),
       ),
       GoRoute(
