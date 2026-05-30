@@ -15,6 +15,7 @@ import '../features/library/library_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/splash/splash_screen.dart';
+import '../features/subtitle/subtitle_studio_screen.dart';
 import '../shared/widgets/_dev/component_gallery.dart';
 import '../shared/widgets/main_shell.dart';
 import '../shared/widgets/placeholder_screen.dart';
@@ -107,9 +108,8 @@ GoRouter createAppRouter({
       ),
       GoRoute(
         path: AppRoutes.subtitleStudio,
-        builder: (context, state) => PlaceholderScreen(
-          name: 'Subtitle Studio',
-          detail: 'videoId: ${state.pathParameters['videoId']}',
+        builder: (context, state) => SubtitleStudioScreen(
+          videoId: state.pathParameters['videoId'] ?? '',
         ),
       ),
       GoRoute(

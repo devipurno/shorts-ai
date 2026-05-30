@@ -89,7 +89,7 @@ void main() {
     expect(find.byKey(const Key('profile-screen')), findsOneWidget);
   });
 
-  testWidgets('dynamic routes render placeholder details', (tester) async {
+  testWidgets('dynamic subtitle route renders studio screen', (tester) async {
     final router = createAppRouter(
       initialLocation: AppRoutes.subtitleStudioPath('video-42'),
       initialAuthState: Authenticated(mockAuthenticatedRouteUser()),
@@ -98,9 +98,8 @@ void main() {
     await tester.pumpWidget(_RouterHarness(router: router));
     await tester.pumpAndSettle();
 
-    expect(
-        find.byKey(const Key('placeholder-Subtitle Studio')), findsOneWidget);
-    expect(find.text('videoId: video-42'), findsOneWidget);
+    expect(find.byKey(const Key('subtitle-studio-screen')), findsOneWidget);
+    expect(find.text('Project video-42'), findsOneWidget);
   });
 
   testWidgets('protected route redirects to login when auth is false', (
