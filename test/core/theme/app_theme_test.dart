@@ -32,20 +32,20 @@ void main() {
     expect(cardShape.borderRadius, BorderRadius.circular(AppRadius.md));
   });
 
-  testWidgets('counter app uses the premium dark theme', (tester) async {
+  testWidgets('app shell uses the premium dark theme', (tester) async {
     await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
 
     final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
     expect(materialApp.locale, const Locale('id', 'ID'));
     expect(materialApp.themeMode, ThemeMode.dark);
 
     final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
-    expect(scaffold.backgroundColor, isNull);
-    expect(Theme.of(tester.element(find.byType(Scaffold))).colorScheme.primary,
-        AppColors.gold);
-
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-    expect(find.text('1'), findsOneWidget);
+    expect(scaffold.backgroundColor, AppColors.obsidian);
+    expect(
+      Theme.of(tester.element(find.byType(Scaffold))).colorScheme.primary,
+      AppColors.gold,
+    );
+    expect(find.byKey(const Key('placeholder-Splash')), findsOneWidget);
   });
 }

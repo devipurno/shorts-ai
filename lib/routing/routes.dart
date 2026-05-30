@@ -1,18 +1,66 @@
 class AppRoutes {
-  const AppRoutes._();
+  AppRoutes._();
 
+  // Auth
   static const splash = '/';
   static const onboarding = '/onboarding';
   static const login = '/login';
   static const signup = '/signup';
   static const forgotPassword = '/forgot-password';
+  static const otpVerify = '/otp-verify';
+
+  // Main app
   static const home = '/home';
   static const library = '/library';
   static const create = '/create';
   static const analytics = '/analytics';
   static const profile = '/profile';
-  static const editor = '/editor/:videoId';
-  static const pricing = '/pricing';
+
+  // Features
+  static const miniEditor = '/editor/:videoId';
+  static const subtitleStudio = '/editor/:videoId/subtitle';
+  static const thumbnailEditor = '/editor/:videoId/thumbnail';
+  static const templateLibrary = '/templates';
+  static const templateDetail = '/templates/:templateId';
+  static const hookGenerator = '/tools/hook-generator';
   static const brandKit = '/brand-kit';
-  static const calendar = '/calendar';
+  static const contentCalendar = '/calendar';
+
+  // Monetization
+  static const pricing = '/pricing';
+  static const checkout = '/checkout';
+  static const referral = '/referral';
+
+  // Settings
+  static const settings = '/settings';
+  static const accountSettings = '/settings/account';
+  static const notificationSettings = '/settings/notifications';
+  static const privacySettings = '/settings/privacy';
+  static const about = '/about';
+
+  static const mainTabs = [home, library, create, analytics, profile];
+
+  static const publicRoutes = {
+    splash,
+    onboarding,
+    login,
+    signup,
+    forgotPassword,
+    otpVerify,
+  };
+
+  static bool isPublicPath(String path) => publicRoutes.contains(path);
+
+  static bool isMainTab(String path) => mainTabs.contains(path);
+
+  static String miniEditorPath(String videoId) => '/editor/$videoId';
+
+  static String subtitleStudioPath(String videoId) =>
+      '/editor/$videoId/subtitle';
+
+  static String thumbnailEditorPath(String videoId) =>
+      '/editor/$videoId/thumbnail';
+
+  static String templateDetailPath(String templateId) =>
+      '/templates/$templateId';
 }
