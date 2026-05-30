@@ -16,6 +16,7 @@ import '../features/onboarding/onboarding_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/subtitle/subtitle_studio_screen.dart';
+import '../features/templates/template_library_screen.dart';
 import '../features/thumbnail/thumbnail_editor_screen.dart';
 import '../shared/widgets/_dev/component_gallery.dart';
 import '../shared/widgets/main_shell.dart';
@@ -127,15 +128,13 @@ GoRouter createAppRouter({
       ),
       GoRoute(
         path: AppRoutes.templateDetail,
-        builder: (context, state) => PlaceholderScreen(
-          name: 'Template Detail',
-          detail: 'templateId: ${state.pathParameters['templateId']}',
+        builder: (context, state) => TemplateDetailScreen(
+          templateId: state.pathParameters['templateId'] ?? '',
         ),
       ),
       GoRoute(
         path: AppRoutes.templateLibrary,
-        builder: (context, state) =>
-            const PlaceholderScreen(name: 'Template Library'),
+        builder: (context, state) => const TemplateLibraryScreen(),
       ),
       GoRoute(
         path: AppRoutes.hookGenerator,
