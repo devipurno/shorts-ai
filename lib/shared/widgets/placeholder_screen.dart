@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../features/auth/providers/auth_provider.dart';
 import '../../routing/routes.dart';
 
-class PlaceholderScreen extends StatelessWidget {
+class PlaceholderScreen extends ConsumerWidget {
   const PlaceholderScreen({
     super.key,
     required this.name,
@@ -17,8 +19,9 @@ class PlaceholderScreen extends StatelessWidget {
   final String? detail;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
+    final authState = ref.watch(authProvider);
 
     return Scaffold(
       backgroundColor: AppColors.obsidian,
@@ -69,6 +72,15 @@ class PlaceholderScreen extends StatelessWidget {
                         style: textTheme.bodySmall,
                       ),
                     ],
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      'Auth: ${_authLabel(authState)}',
+                      key: Key('auth-state-$name'),
+                      textAlign: TextAlign.center,
+                      style: textTheme.labelSmall?.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
                     const SizedBox(height: AppSpacing.xl),
                     OutlinedButton.icon(
                       onPressed: () {
@@ -89,6 +101,15 @@ class PlaceholderScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _authLabel(AuthState state) {
+    return switch (state) {
+      Unauthenticated() => 'Unauthenticated',
+      Authenticating() => 'Authenticating',
+      Authenticated(:final user) => 'Authenticated (${user.email})',
+      AuthError(:final message) => 'AuthError ($message)',
+    };
   }
 }
 

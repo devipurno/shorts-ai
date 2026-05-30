@@ -40,6 +40,12 @@ class AppRoutes {
 
   static const mainTabs = [home, library, create, analytics, profile];
 
+  static const authEntryRoutes = {
+    onboarding,
+    login,
+    signup,
+  };
+
   static const publicRoutes = {
     splash,
     onboarding,

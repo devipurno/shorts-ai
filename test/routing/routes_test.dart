@@ -49,6 +49,9 @@ void main() {
     expect(AppRoutes.isPublicPath(AppRoutes.splash), isTrue);
     expect(AppRoutes.isPublicPath(AppRoutes.login), isTrue);
     expect(AppRoutes.isPublicPath(AppRoutes.home), isFalse);
+    expect(AppRoutes.authEntryRoutes, contains(AppRoutes.login));
+    expect(AppRoutes.authEntryRoutes, contains(AppRoutes.signup));
+    expect(AppRoutes.authEntryRoutes, contains(AppRoutes.onboarding));
     expect(AppRoutes.isMainTab(AppRoutes.create), isTrue);
     expect(AppRoutes.mainTabs, hasLength(5));
   });

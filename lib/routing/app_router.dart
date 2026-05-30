@@ -1,20 +1,35 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/auth/models/user.dart';
+import '../features/auth/providers/auth_provider.dart';
 import '../shared/widgets/main_shell.dart';
 import '../shared/widgets/placeholder_screen.dart';
 import 'routes.dart';
 
-final GoRouter appRouter = createAppRouter();
+final appRouterProvider = Provider<GoRouter>((ref) {
+  final authRefreshListenable = AuthRouterRefreshListenable(ref);
+  final router = createAppRouter(authStateListenable: authRefreshListenable);
+
+  ref
+    ..onDispose(authRefreshListenable.dispose)
+    ..onDispose(router.dispose);
+
+  return router;
+});
 
 GoRouter createAppRouter({
   String initialLocation = AppRoutes.splash,
-  bool isAuthenticated = true,
+  AuthState initialAuthState = const Unauthenticated(),
+  ValueListenable<AuthState>? authStateListenable,
 }) {
   return GoRouter(
     initialLocation: initialLocation,
+    refreshListenable: authStateListenable,
     redirect: (context, state) => _authRedirect(
       state,
-      isAuthenticated: isAuthenticated,
+      authState: authStateListenable?.value ?? initialAuthState,
     ),
     errorBuilder: (context, state) => ErrorScreen(error: state.error),
     routes: [
@@ -162,11 +177,54 @@ GoRouter createAppRouter({
 
 String? _authRedirect(
   GoRouterState state, {
-  required bool isAuthenticated,
+  required AuthState authState,
 }) {
   final path = state.uri.path;
-  if (!isAuthenticated && !AppRoutes.isPublicPath(path)) {
+  final isAuthEntryRoute = AppRoutes.authEntryRoutes.contains(path);
+
+  if (authState is! Authenticated && !isAuthEntryRoute) {
     return AppRoutes.login;
   }
+
+  if (authState is Authenticated &&
+      (path == AppRoutes.login || path == AppRoutes.signup)) {
+    return AppRoutes.home;
+  }
+
   return null;
+}
+
+final class AuthRouterRefreshListenable extends ChangeNotifier
+    implements ValueListenable<AuthState> {
+  AuthRouterRefreshListenable(Ref ref) : _state = ref.read(authProvider) {
+    _subscription = ref.listen<AuthState>(
+      authProvider,
+      (previous, next) {
+        _state = next;
+        notifyListeners();
+      },
+    );
+  }
+
+  late final ProviderSubscription<AuthState> _subscription;
+  AuthState _state;
+
+  @override
+  AuthState get value => _state;
+
+  @override
+  void dispose() {
+    _subscription.close();
+    super.dispose();
+  }
+}
+
+User mockAuthenticatedRouteUser() {
+  return User(
+    id: 'mock-route-user',
+    email: 'creator@autoshort.local',
+    name: 'AutoShort Creator',
+    tier: SubscriptionTier.free,
+    createdAt: DateTime(2026),
+  );
 }

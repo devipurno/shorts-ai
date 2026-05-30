@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shorts_ai/app.dart';
 import 'package:shorts_ai/core/theme/app_colors.dart';
@@ -33,7 +34,11 @@ void main() {
   });
 
   testWidgets('app shell uses the premium dark theme', (tester) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MyApp(),
+      ),
+    );
     await tester.pumpAndSettle();
 
     final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
@@ -46,6 +51,6 @@ void main() {
       Theme.of(tester.element(find.byType(Scaffold))).colorScheme.primary,
       AppColors.gold,
     );
-    expect(find.byKey(const Key('placeholder-Splash')), findsOneWidget);
+    expect(find.byKey(const Key('placeholder-Login')), findsOneWidget);
   });
 }

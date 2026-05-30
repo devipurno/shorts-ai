@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:shorts_ai/core/theme/app_typography.dart';
@@ -9,10 +10,16 @@ void main() {
     AppTypography.setUseGoogleFontsForTest(false);
   });
 
-  testWidgets('App starts on splash route', (tester) async {
-    await tester.pumpWidget(const MyApp());
+  testWidgets('App redirects unauthenticated user to login route', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MyApp(),
+      ),
+    );
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('placeholder-Splash')), findsOneWidget);
+    expect(find.byKey(const Key('placeholder-Login')), findsOneWidget);
   });
 }

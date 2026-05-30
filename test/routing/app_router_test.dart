@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shorts_ai/core/constants/app_constants.dart';
 import 'package:shorts_ai/core/theme/app_colors.dart';
 import 'package:shorts_ai/core/theme/app_theme.dart';
 import 'package:shorts_ai/core/theme/app_typography.dart';
+import 'package:shorts_ai/features/auth/providers/auth_provider.dart';
 import 'package:shorts_ai/routing/app_router.dart';
 import 'package:shorts_ai/routing/routes.dart';
 
@@ -14,7 +16,13 @@ void main() {
   });
 
   testWidgets('starts at splash screen', (tester) async {
-    await tester.pumpWidget(_RouterHarness(router: createAppRouter()));
+    await tester.pumpWidget(
+      _RouterHarness(
+        router: createAppRouter(
+          initialAuthState: Authenticated(mockAuthenticatedRouteUser()),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('placeholder-Splash')), findsOneWidget);
@@ -22,7 +30,9 @@ void main() {
   });
 
   testWidgets('can navigate manually to home route', (tester) async {
-    final router = createAppRouter();
+    final router = createAppRouter(
+      initialAuthState: Authenticated(mockAuthenticatedRouteUser()),
+    );
 
     await tester.pumpWidget(_RouterHarness(router: router));
     await tester.pumpAndSettle();
@@ -35,7 +45,10 @@ void main() {
   });
 
   testWidgets('bottom navigation switches the 5 main tabs', (tester) async {
-    final router = createAppRouter(initialLocation: AppRoutes.home);
+    final router = createAppRouter(
+      initialLocation: AppRoutes.home,
+      initialAuthState: Authenticated(mockAuthenticatedRouteUser()),
+    );
 
     await tester.pumpWidget(_RouterHarness(router: router));
     await tester.pumpAndSettle();
@@ -60,6 +73,7 @@ void main() {
   testWidgets('dynamic routes render placeholder details', (tester) async {
     final router = createAppRouter(
       initialLocation: AppRoutes.subtitleStudioPath('video-42'),
+      initialAuthState: Authenticated(mockAuthenticatedRouteUser()),
     );
 
     await tester.pumpWidget(_RouterHarness(router: router));
@@ -75,7 +89,6 @@ void main() {
   ) async {
     final router = createAppRouter(
       initialLocation: AppRoutes.home,
-      isAuthenticated: false,
     );
 
     await tester.pumpWidget(_RouterHarness(router: router));
@@ -85,7 +98,10 @@ void main() {
   });
 
   testWidgets('unknown path renders error screen', (tester) async {
-    final router = createAppRouter(initialLocation: '/missing');
+    final router = createAppRouter(
+      initialLocation: '/missing',
+      initialAuthState: Authenticated(mockAuthenticatedRouteUser()),
+    );
 
     await tester.pumpWidget(_RouterHarness(router: router));
     await tester.pumpAndSettle();
@@ -108,9 +124,11 @@ class _RouterHarness extends StatelessWidget {
       themeMode: ThemeMode.dark,
       routerConfig: router,
       builder: (context, child) {
-        return ColoredBox(
-          color: AppColors.obsidian,
-          child: child ?? const SizedBox.shrink(),
+        return ProviderScope(
+          child: ColoredBox(
+            color: AppColors.obsidian,
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
     );
