@@ -8,9 +8,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:shorts_ai/core/theme/app_typography.dart';
 import 'package:shorts_ai/main.dart';
 
 void main() {
+  setUpAll(() {
+    AppTypography.setUseGoogleFontsForTest(false);
+  });
+
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
