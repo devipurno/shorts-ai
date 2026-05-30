@@ -12,6 +12,7 @@ import '../features/auth/screens/signup_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/library/library_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
+import '../features/profile/profile_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../shared/widgets/_dev/component_gallery.dart';
 import '../shared/widgets/main_shell.dart';
@@ -99,8 +100,7 @@ GoRouter createAppRouter({
           ),
           GoRoute(
             path: AppRoutes.profile,
-            builder: (context, state) =>
-                const PlaceholderScreen(name: 'Profile'),
+            builder: (context, state) => const ProfileScreen(),
           ),
         ],
       ),
@@ -185,6 +185,11 @@ GoRouter createAppRouter({
       GoRoute(
         path: AppRoutes.about,
         builder: (context, state) => const PlaceholderScreen(name: 'About'),
+      ),
+      GoRoute(
+        path: AppRoutes.help,
+        builder: (context, state) =>
+            const PlaceholderScreen(name: 'Help & Support'),
       ),
       if (kDebugMode)
         GoRoute(

@@ -38,6 +38,7 @@ class AppRoutes {
   static const notificationSettings = '/settings/notifications';
   static const privacySettings = '/settings/privacy';
   static const about = '/about';
+  static const help = '/help';
 
   // Debug only
   static const devComponents = '/dev/components';

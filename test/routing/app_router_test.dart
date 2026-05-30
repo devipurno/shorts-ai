@@ -86,7 +86,7 @@ void main() {
 
     await tester.tap(find.text('Profile').last);
     await _pumpRoute(tester);
-    expect(find.byKey(const Key('placeholder-Profile')), findsOneWidget);
+    expect(find.byKey(const Key('profile-screen')), findsOneWidget);
   });
 
   testWidgets('dynamic routes render placeholder details', (tester) async {
