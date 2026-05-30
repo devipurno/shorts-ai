@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/auth/models/user.dart';
 import '../features/auth/providers/auth_provider.dart';
+import '../features/onboarding/onboarding_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../shared/widgets/_dev/component_gallery.dart';
 import '../shared/widgets/main_shell.dart';
@@ -41,8 +42,7 @@ GoRouter createAppRouter({
       ),
       GoRoute(
         path: AppRoutes.onboarding,
-        builder: (context, state) =>
-            const PlaceholderScreen(name: 'Onboarding'),
+        builder: (context, state) => const OnboardingScreen(),
       ),
       GoRoute(
         path: AppRoutes.login,

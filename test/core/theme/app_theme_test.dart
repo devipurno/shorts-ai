@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shorts_ai/app.dart';
 import 'package:shorts_ai/core/theme/app_colors.dart';
 import 'package:shorts_ai/core/theme/app_radius.dart';
@@ -10,6 +11,10 @@ import 'package:shorts_ai/core/theme/app_typography.dart';
 void main() {
   setUpAll(() {
     AppTypography.setUseGoogleFontsForTest(false);
+  });
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
   });
 
   test('builds a dark-only gold and obsidian ThemeData', () {
@@ -40,7 +45,8 @@ void main() {
       ),
     );
     await tester.pump(const Duration(seconds: 3));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
     final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
     expect(materialApp.locale, const Locale('id', 'ID'));
@@ -52,6 +58,6 @@ void main() {
       Theme.of(tester.element(find.byType(Scaffold))).colorScheme.primary,
       AppColors.gold,
     );
-    expect(find.byKey(const Key('placeholder-Onboarding')), findsOneWidget);
+    expect(find.byKey(const Key('onboarding-screen')), findsOneWidget);
   });
 }

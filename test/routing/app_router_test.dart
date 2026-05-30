@@ -2,18 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shorts_ai/core/constants/app_constants.dart';
 import 'package:shorts_ai/core/theme/app_colors.dart';
 import 'package:shorts_ai/core/theme/app_theme.dart';
 import 'package:shorts_ai/core/theme/app_typography.dart';
 import 'package:shorts_ai/features/auth/providers/auth_provider.dart';
+import 'package:shorts_ai/features/onboarding/providers/onboarding_provider.dart';
 import 'package:shorts_ai/features/splash/splash_screen.dart';
 import 'package:shorts_ai/routing/app_router.dart';
 import 'package:shorts_ai/routing/routes.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   setUpAll(() {
     AppTypography.setUseGoogleFontsForTest(false);
+  });
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({
+      hasCompletedOnboardingKey: true,
+    });
   });
 
   testWidgets('starts at splash screen', (tester) async {
@@ -30,11 +40,12 @@ void main() {
     expect(find.byKey(const Key('splash-screen')), findsOneWidget);
 
     await tester.pump(const Duration(seconds: 3));
-    await tester.pumpAndSettle();
+    await tester.pump();
   });
 
   testWidgets('can navigate manually to home route', (tester) async {
     final router = createAppRouter(
+      initialLocation: AppRoutes.home,
       initialAuthState: Authenticated(mockAuthenticatedRouteUser()),
     );
 

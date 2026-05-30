@@ -9,8 +9,10 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../routing/routes.dart';
+import '../../shared/services/providers.dart';
 import '../../shared/widgets/brand/app_logo.dart';
 import '../auth/providers/auth_provider.dart';
+import '../onboarding/providers/onboarding_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({
@@ -31,14 +33,32 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     Future<void>.delayed(widget.navigationDelay, _navigateNext);
   }
 
-  void _navigateNext() {
+  Future<void> _navigateNext() async {
     if (!mounted) {
+      return;
+    }
+
+    var hasCompletedOnboarding = false;
+    try {
+      final preferences = await ref.read(preferencesServiceProvider.future);
+      hasCompletedOnboarding =
+          preferences.getBool(hasCompletedOnboardingKey) ?? false;
+    } catch (_) {
+      hasCompletedOnboarding = false;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    if (!hasCompletedOnboarding) {
+      context.go(AppRoutes.onboarding);
       return;
     }
 
     final authState = ref.read(authProvider);
     final target =
-        authState is Authenticated ? AppRoutes.home : AppRoutes.onboarding;
+        authState is Authenticated ? AppRoutes.home : AppRoutes.login;
     context.go(target);
   }
 
