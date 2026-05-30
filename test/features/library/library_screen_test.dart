@@ -5,11 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shorts_ai/core/theme/app_theme.dart';
 import 'package:shorts_ai/core/theme/app_typography.dart';
-import 'package:shorts_ai/features/auth/providers/auth_provider.dart';
 import 'package:shorts_ai/features/library/library_screen.dart';
-import 'package:shorts_ai/features/library/providers/library_provider.dart';
-import 'package:shorts_ai/routing/app_router.dart';
-import 'package:shorts_ai/routing/routes.dart';
 import 'package:shorts_ai/shared/models/project.dart';
 import 'package:shorts_ai/shared/repositories/project_repository.dart';
 import 'package:shorts_ai/shared/repositories/providers.dart';
@@ -21,58 +17,75 @@ void main() {
     AppTypography.setUseGoogleFontsForTest(false);
   });
 
-  testWidgets('renders library summary and project list', (tester) async {
+  testWidgets('tab switching shows filtered project list', (tester) async {
     await tester.pumpWidget(_LibraryHarness(projects: _projects()));
     await _pumpLibraryReady(tester);
 
-    expect(find.byKey(const Key('library-screen')), findsOneWidget);
-    expect(find.byKey(const Key('library-summary-card')), findsOneWidget);
-    expect(find.byKey(const Key('library-project-card-project_1')),
-        findsOneWidget);
     expect(find.text('Launch Clip'), findsOneWidget);
+
+    await tester.tap(find.textContaining('Drafts').last);
+    await _pumpLibraryReady(tester);
+
+    expect(find.text('Finance Draft'), findsOneWidget);
+    expect(find.text('Launch Clip'), findsNothing);
+    expect(find.text('Processing Reel'), findsNothing);
   });
 
-  testWidgets('search filters projects by title', (tester) async {
+  testWidgets('search overlay filters projects realtime', (tester) async {
     await tester.pumpWidget(_LibraryHarness(projects: _projects()));
     await _pumpLibraryReady(tester);
 
+    await tester.tap(find.byKey(const Key('library-search-action')));
+    await tester.pumpAndSettle();
+
     final searchField = find.descendant(
-      of: find.byKey(const Key('library-search')),
+      of: find.byKey(const Key('library-search-overlay-input')),
       matching: find.byType(TextField),
     );
-
-    await tester.enterText(searchField, 'Finance');
+    await tester.enterText(searchField, 'finance');
     await _pumpLibraryReady(tester);
 
-    expect(find.text('Finance Hook'), findsOneWidget);
+    expect(find.text('Finance Draft'), findsOneWidget);
     expect(find.text('Launch Clip'), findsNothing);
   });
 
-  testWidgets('status filter shows matching projects', (tester) async {
+  testWidgets('long press project card shows action sheet', (tester) async {
     await tester.pumpWidget(_LibraryHarness(projects: _projects()));
     await _pumpLibraryReady(tester);
 
-    await tester.tap(find.byKey(const Key('library-filter-ready')));
-    await _pumpLibraryReady(tester);
+    await tester.longPress(
+      find.byKey(const Key('library-project-card-project_1')),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
-    expect(find.text('Launch Clip'), findsOneWidget);
-    expect(find.text('Finance Hook'), findsNothing);
+    expect(find.byKey(const Key('library-action-sheet')), findsOneWidget);
+    expect(find.text('Edit'), findsOneWidget);
+    expect(find.text('Duplicate'), findsOneWidget);
+    expect(find.text('Share'), findsOneWidget);
+    expect(find.text('Delete'), findsOneWidget);
   });
 
-  testWidgets('empty data shows empty state', (tester) async {
-    await tester.pumpWidget(const _LibraryHarness(projects: []));
+  testWidgets('empty state is tailored per tab', (tester) async {
+    await tester.pumpWidget(
+      _LibraryHarness(
+        projects: [_projects().first],
+      ),
+    );
     await _pumpLibraryReady(tester);
 
-    expect(find.text('Belum ada project.'), findsOneWidget);
-    expect(find.text('Buat Shorts Baru'), findsOneWidget);
+    await tester.tap(find.textContaining('Drafts').last);
+    await _pumpLibraryReady(tester);
+
+    expect(find.text('Tidak ada draft tersimpan'), findsOneWidget);
   });
 
-  testWidgets('loading state shows shimmer placeholders', (tester) async {
+  testWidgets('loading state shows grid shimmer placeholders', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          libraryDataProvider
-              .overrideWith((ref) => Completer<LibraryData>().future),
+          projectRepositoryProvider
+              .overrideWithValue(_NeverProjectRepository()),
         ],
         child: MaterialApp(
           theme: darkTheme(),
@@ -83,42 +96,13 @@ void main() {
 
     await tester.pump();
 
-    expect(find.byKey(const Key('library-loading')), findsOneWidget);
-  });
-
-  testWidgets('project card opens mini editor route', (tester) async {
-    final router = createAppRouter(
-      initialLocation: AppRoutes.library,
-      initialAuthState: Authenticated(mockAuthenticatedRouteUser()),
-    );
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          projectRepositoryProvider
-              .overrideWithValue(_FakeProjectRepository(_projects())),
-        ],
-        child: MaterialApp.router(
-          theme: darkTheme(),
-          routerConfig: router,
-        ),
-      ),
-    );
-    await _pumpLibraryReady(tester);
-
-    await tester.tap(find.byKey(const Key('library-project-card-project_1')));
-    await _pumpLibraryReady(tester);
-
-    expect(find.byKey(const Key('placeholder-Mini Editor')), findsOneWidget);
-    expect(find.text('videoId: project_1'), findsOneWidget);
-
-    router.dispose();
+    expect(find.byKey(const Key('library-loading-grid')), findsOneWidget);
   });
 }
 
 Future<void> _pumpLibraryReady(WidgetTester tester) async {
   await tester.pump();
-  await tester.pump(const Duration(seconds: 1));
+  await tester.pump(const Duration(milliseconds: 350));
 }
 
 List<Project> _projects() {
@@ -129,17 +113,18 @@ List<Project> _projects() {
       userId: 'user_1',
       title: 'Launch Clip',
       description: 'Product launch edit',
-      status: ProjectStatus.ready,
+      status: ProjectStatus.published,
       thumbnailUrl: '',
       duration: 45,
       tags: const ['launch', 'product'],
       createdAt: now.subtract(const Duration(days: 2)),
       updatedAt: now,
+      publishedAt: now,
     ),
     Project(
       id: 'project_2',
       userId: 'user_1',
-      title: 'Finance Hook',
+      title: 'Finance Draft',
       description: 'Money tips',
       status: ProjectStatus.draft,
       thumbnailUrl: '',
@@ -147,6 +132,18 @@ List<Project> _projects() {
       tags: const ['finance'],
       createdAt: now.subtract(const Duration(days: 3)),
       updatedAt: now.subtract(const Duration(days: 1)),
+    ),
+    Project(
+      id: 'project_3',
+      userId: 'user_1',
+      title: 'Processing Reel',
+      description: 'Cooking edit',
+      status: ProjectStatus.processing,
+      thumbnailUrl: '',
+      duration: 28,
+      tags: const ['food'],
+      createdAt: now.subtract(const Duration(days: 1)),
+      updatedAt: now.subtract(const Duration(hours: 2)),
     ),
   ];
 }
@@ -160,8 +157,9 @@ class _LibraryHarness extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProviderScope(
       overrides: [
-        projectRepositoryProvider
-            .overrideWithValue(_FakeProjectRepository(projects)),
+        projectRepositoryProvider.overrideWithValue(
+          _MutableProjectRepository(projects),
+        ),
       ],
       child: MaterialApp(
         theme: darkTheme(),
@@ -171,11 +169,50 @@ class _LibraryHarness extends StatelessWidget {
   }
 }
 
-class _FakeProjectRepository implements ProjectRepository {
-  const _FakeProjectRepository(this.projects);
+class _MutableProjectRepository implements ProjectRepository {
+  _MutableProjectRepository(List<Project> projects) : _projects = [...projects];
 
-  final List<Project> projects;
+  final _controller = StreamController<void>.broadcast();
+  final List<Project> _projects;
 
+  @override
+  Future<Project> create(Project project) async {
+    _projects.add(project);
+    _controller.add(null);
+    return project;
+  }
+
+  @override
+  Future<void> delete(String id) async {
+    _projects.removeWhere((project) => project.id == id);
+    _controller.add(null);
+  }
+
+  @override
+  Future<List<Project>> getAll({String? userId}) async => _filter(userId);
+
+  @override
+  Future<Project?> getById(String id) async =>
+      _projects.where((project) => project.id == id).firstOrNull;
+
+  @override
+  Future<Project> update(Project project) async => project;
+
+  @override
+  Stream<List<Project>> watch({String? userId}) async* {
+    yield _filter(userId);
+    yield* _controller.stream.map((_) => _filter(userId));
+  }
+
+  List<Project> _filter(String? userId) {
+    if (userId == null) {
+      return [..._projects];
+    }
+    return _projects.where((project) => project.userId == userId).toList();
+  }
+}
+
+class _NeverProjectRepository implements ProjectRepository {
   @override
   Future<Project> create(Project project) async => project;
 
@@ -183,21 +220,16 @@ class _FakeProjectRepository implements ProjectRepository {
   Future<void> delete(String id) async {}
 
   @override
-  Future<List<Project>> getAll({String? userId}) async {
-    return projects.where((project) => project.userId == userId).toList();
-  }
+  Future<List<Project>> getAll({String? userId}) async => [];
 
   @override
-  Future<Project?> getById(String id) async =>
-      projects.where((project) => project.id == id).firstOrNull;
+  Future<Project?> getById(String id) async => null;
 
   @override
   Future<Project> update(Project project) async => project;
 
   @override
   Stream<List<Project>> watch({String? userId}) {
-    return Stream.value(
-      projects.where((project) => project.userId == userId).toList(),
-    );
+    return StreamController<List<Project>>().stream;
   }
 }

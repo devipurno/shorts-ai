@@ -9,11 +9,13 @@ import 'package:shorts_ai/core/theme/app_theme.dart';
 import 'package:shorts_ai/core/theme/app_typography.dart';
 import 'package:shorts_ai/features/auth/providers/auth_provider.dart';
 import 'package:shorts_ai/features/home/providers/home_provider.dart';
-import 'package:shorts_ai/features/library/providers/library_provider.dart';
 import 'package:shorts_ai/features/onboarding/providers/onboarding_provider.dart';
 import 'package:shorts_ai/features/splash/splash_screen.dart';
 import 'package:shorts_ai/routing/app_router.dart';
 import 'package:shorts_ai/routing/routes.dart';
+import 'package:shorts_ai/shared/models/project.dart';
+import 'package:shorts_ai/shared/repositories/project_repository.dart';
+import 'package:shorts_ai/shared/repositories/providers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -149,7 +151,9 @@ class _RouterHarness extends StatelessWidget {
         return ProviderScope(
           overrides: [
             homeDataProvider.overrideWith((ref) async => _emptyHomeData),
-            libraryDataProvider.overrideWith((ref) async => _emptyLibraryData),
+            projectRepositoryProvider.overrideWithValue(
+              const _EmptyProjectRepository(),
+            ),
           ],
           child: ColoredBox(
             color: AppColors.obsidian,
@@ -169,11 +173,24 @@ const _emptyHomeData = HomeData(
   hasUnreadNotifications: false,
 );
 
-const _emptyLibraryData = LibraryData(
-  projects: [],
-  totalCount: 0,
-  draftCount: 0,
-  processingCount: 0,
-  readyCount: 0,
-  publishedCount: 0,
-);
+class _EmptyProjectRepository implements ProjectRepository {
+  const _EmptyProjectRepository();
+
+  @override
+  Future<Project> create(Project project) async => project;
+
+  @override
+  Future<void> delete(String id) async {}
+
+  @override
+  Future<List<Project>> getAll({String? userId}) async => [];
+
+  @override
+  Future<Project?> getById(String id) async => null;
+
+  @override
+  Future<Project> update(Project project) async => project;
+
+  @override
+  Stream<List<Project>> watch({String? userId}) => Stream.value([]);
+}

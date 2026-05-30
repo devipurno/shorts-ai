@@ -6,53 +6,62 @@ import '../../../shared/repositories/providers.dart';
 import '../../auth/providers/current_user_provider.dart';
 
 const _fallbackUserId = 'user_1';
+const _sentinel = Object();
 
 final libraryFilterProvider =
     StateNotifierProvider<LibraryFilterNotifier, LibraryFilterState>((ref) {
   return LibraryFilterNotifier();
 });
 
-final libraryDataProvider = FutureProvider<LibraryData>((ref) async {
+final librarySearchQueryProvider = StateProvider<String>((ref) => '');
+
+final libraryProjectsProvider =
+    StreamProvider.family<List<Project>, LibraryTab>((ref, tab) {
   final user = ref.watch(currentUserProvider);
   final filter = ref.watch(libraryFilterProvider);
+  final searchQuery = ref.watch(librarySearchQueryProvider);
   final projectRepository = ref.watch(projectRepositoryProvider);
-  final projects = await projectRepository.getAll(
-    userId: user?.id ?? _fallbackUserId,
-  );
 
-  final filtered = _applyFilter(projects, filter);
+  return projectRepository.watch(userId: user?.id ?? _fallbackUserId).map(
+        (projects) => _applyFilter(
+          projects,
+          tab: tab,
+          filter: filter,
+          searchQuery: searchQuery,
+        ),
+      );
+});
 
-  return LibraryData(
-    projects: filtered,
-    totalCount: projects.length,
-    draftCount: projects
-        .where((project) => project.status == ProjectStatus.draft)
-        .length,
-    processingCount: projects
-        .where((project) => project.status == ProjectStatus.processing)
-        .length,
-    readyCount: projects
-        .where((project) => project.status == ProjectStatus.ready)
-        .length,
-    publishedCount: projects
-        .where((project) => project.status == ProjectStatus.published)
-        .length,
-  );
+final libraryCountsProvider = StreamProvider<LibraryCounts>((ref) {
+  final user = ref.watch(currentUserProvider);
+  final projectRepository = ref.watch(projectRepositoryProvider);
+
+  return projectRepository
+      .watch(userId: user?.id ?? _fallbackUserId)
+      .map(LibraryCounts.fromProjects);
 });
 
 class LibraryFilterNotifier extends StateNotifier<LibraryFilterState> {
   LibraryFilterNotifier() : super(const LibraryFilterState());
 
-  void setSearchQuery(String value) {
-    state = state.copyWith(searchQuery: value.trim());
-  }
-
-  void setStatus(LibraryStatusFilter value) {
-    state = state.copyWith(status: value);
-  }
-
   void setSort(LibrarySortOrder value) {
     state = state.copyWith(sortOrder: value);
+  }
+
+  void setDateRange(LibraryDateRangeFilter value) {
+    state = state.copyWith(dateRange: value);
+  }
+
+  void setTemplateId(String? value) {
+    state = state.copyWith(templateId: value);
+  }
+
+  void setTier(LibraryTierFilter value) {
+    state = state.copyWith(tier: value);
+  }
+
+  void setFilter(LibraryFilterState value) {
+    state = value;
   }
 
   void clear() {
@@ -62,87 +71,172 @@ class LibraryFilterNotifier extends StateNotifier<LibraryFilterState> {
 
 class LibraryFilterState {
   const LibraryFilterState({
-    this.searchQuery = '',
-    this.status = LibraryStatusFilter.all,
-    this.sortOrder = LibrarySortOrder.updatedNewest,
+    this.sortOrder = LibrarySortOrder.latest,
+    this.dateRange = LibraryDateRangeFilter.all,
+    this.templateId,
+    this.tier = LibraryTierFilter.all,
   });
 
-  final String searchQuery;
-  final LibraryStatusFilter status;
   final LibrarySortOrder sortOrder;
+  final LibraryDateRangeFilter dateRange;
+  final String? templateId;
+  final LibraryTierFilter tier;
+
+  bool get hasActiveFilters {
+    return sortOrder != LibrarySortOrder.latest ||
+        dateRange != LibraryDateRangeFilter.all ||
+        (templateId != null && templateId!.isNotEmpty) ||
+        tier != LibraryTierFilter.all;
+  }
 
   LibraryFilterState copyWith({
-    String? searchQuery,
-    LibraryStatusFilter? status,
     LibrarySortOrder? sortOrder,
+    LibraryDateRangeFilter? dateRange,
+    Object? templateId = _sentinel,
+    LibraryTierFilter? tier,
   }) {
     return LibraryFilterState(
-      searchQuery: searchQuery ?? this.searchQuery,
-      status: status ?? this.status,
       sortOrder: sortOrder ?? this.sortOrder,
+      dateRange: dateRange ?? this.dateRange,
+      templateId: identical(templateId, _sentinel)
+          ? this.templateId
+          : templateId as String?,
+      tier: tier ?? this.tier,
     );
   }
 }
 
-enum LibraryStatusFilter {
-  all('Semua'),
-  draft('Draft'),
-  processing('Proses'),
-  ready('Siap'),
-  published('Live');
+enum LibraryTab {
+  all('All'),
+  drafts('Drafts'),
+  processing('Processing'),
+  published('Published');
 
-  const LibraryStatusFilter(this.label);
+  const LibraryTab(this.label);
 
   final String label;
 }
 
 enum LibrarySortOrder {
-  updatedNewest('Terbaru diupdate'),
-  createdNewest('Terbaru dibuat'),
-  titleAsc('Judul A-Z'),
-  durationDesc('Durasi terpanjang');
+  latest('Latest'),
+  oldest('Oldest'),
+  titleAsc('Title A-Z'),
+  mostViewed('Most viewed');
 
   const LibrarySortOrder(this.label);
 
   final String label;
 }
 
-class LibraryData {
-  const LibraryData({
-    required this.projects,
-    required this.totalCount,
-    required this.draftCount,
-    required this.processingCount,
-    required this.readyCount,
-    required this.publishedCount,
+enum LibraryDateRangeFilter {
+  all('Any time'),
+  last7Days('Last 7 days'),
+  last30Days('Last 30 days');
+
+  const LibraryDateRangeFilter(this.label);
+
+  final String label;
+}
+
+enum LibraryTierFilter {
+  all('Any tier'),
+  free('Free'),
+  premium('Premium');
+
+  const LibraryTierFilter(this.label);
+
+  final String label;
+}
+
+class LibraryCounts {
+  const LibraryCounts({
+    required this.all,
+    required this.drafts,
+    required this.processing,
+    required this.published,
   });
 
-  final List<Project> projects;
-  final int totalCount;
-  final int draftCount;
-  final int processingCount;
-  final int readyCount;
-  final int publishedCount;
+  const LibraryCounts.empty()
+      : all = 0,
+        drafts = 0,
+        processing = 0,
+        published = 0;
+
+  factory LibraryCounts.fromProjects(List<Project> projects) {
+    return LibraryCounts(
+      all: projects.length,
+      drafts: projects
+          .where((project) => project.status == ProjectStatus.draft)
+          .length,
+      processing: projects
+          .where((project) => project.status == ProjectStatus.processing)
+          .length,
+      published: projects
+          .where((project) => project.status == ProjectStatus.published)
+          .length,
+    );
+  }
+
+  final int all;
+  final int drafts;
+  final int processing;
+  final int published;
+
+  int countFor(LibraryTab tab) {
+    return switch (tab) {
+      LibraryTab.all => all,
+      LibraryTab.drafts => drafts,
+      LibraryTab.processing => processing,
+      LibraryTab.published => published,
+    };
+  }
 }
 
 List<Project> _applyFilter(
-  List<Project> projects,
-  LibraryFilterState filter,
-) {
+  List<Project> projects, {
+  required LibraryTab tab,
+  required LibraryFilterState filter,
+  required String searchQuery,
+}) {
   Iterable<Project> result = projects;
 
-  if (filter.status != LibraryStatusFilter.all) {
-    final status = switch (filter.status) {
-      LibraryStatusFilter.all => null,
-      LibraryStatusFilter.draft => ProjectStatus.draft,
-      LibraryStatusFilter.processing => ProjectStatus.processing,
-      LibraryStatusFilter.ready => ProjectStatus.ready,
-      LibraryStatusFilter.published => ProjectStatus.published,
-    };
-    result = result.where((project) => project.status == status);
+  final tabStatus = switch (tab) {
+    LibraryTab.all => null,
+    LibraryTab.drafts => ProjectStatus.draft,
+    LibraryTab.processing => ProjectStatus.processing,
+    LibraryTab.published => ProjectStatus.published,
+  };
+  if (tabStatus != null) {
+    result = result.where((project) => project.status == tabStatus);
   }
 
-  final query = filter.searchQuery.toLowerCase();
+  result = switch (filter.dateRange) {
+    LibraryDateRangeFilter.all => result,
+    LibraryDateRangeFilter.last7Days => result.where(
+        (project) => project.updatedAt.isAfter(
+          DateTime.now().subtract(const Duration(days: 7)),
+        ),
+      ),
+    LibraryDateRangeFilter.last30Days => result.where(
+        (project) => project.updatedAt.isAfter(
+          DateTime.now().subtract(const Duration(days: 30)),
+        ),
+      ),
+  };
+
+  if (filter.templateId != null && filter.templateId!.isNotEmpty) {
+    result = result.where((project) => project.templateId == filter.templateId);
+  }
+
+  result = switch (filter.tier) {
+    LibraryTierFilter.all => result,
+    LibraryTierFilter.free =>
+      result.where((project) => project.brandKitId == null),
+    LibraryTierFilter.premium =>
+      result.where((project) => project.brandKitId != null),
+  };
+
+  final query = searchQuery.toLowerCase().trim();
   if (query.isNotEmpty) {
     result = result.where((project) {
       final searchable = [
@@ -156,14 +250,20 @@ List<Project> _applyFilter(
 
   final sorted = result.toList();
   switch (filter.sortOrder) {
-    case LibrarySortOrder.updatedNewest:
+    case LibrarySortOrder.latest:
       sorted.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    case LibrarySortOrder.createdNewest:
-      sorted.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    case LibrarySortOrder.oldest:
+      sorted.sort((a, b) => a.updatedAt.compareTo(b.updatedAt));
     case LibrarySortOrder.titleAsc:
       sorted.sort((a, b) => a.title.compareTo(b.title));
-    case LibrarySortOrder.durationDesc:
-      sorted.sort((a, b) => b.duration.compareTo(a.duration));
+    case LibrarySortOrder.mostViewed:
+      // Project has no view-count field yet. Use published recency as a stable
+      // proxy until analytics-backed sorting is available.
+      sorted.sort((a, b) {
+        final bSignal = b.publishedAt ?? b.updatedAt;
+        final aSignal = a.publishedAt ?? a.updatedAt;
+        return bSignal.compareTo(aSignal);
+      });
   }
 
   return List<Project>.unmodifiable(sorted);
