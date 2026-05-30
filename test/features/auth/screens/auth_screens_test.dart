@@ -9,6 +9,7 @@ import 'package:shorts_ai/features/auth/providers/auth_provider.dart';
 import 'package:shorts_ai/features/auth/screens/forgot_password_screen.dart';
 import 'package:shorts_ai/features/auth/screens/login_screen.dart';
 import 'package:shorts_ai/features/auth/screens/signup_screen.dart';
+import 'package:shorts_ai/features/home/providers/home_provider.dart';
 import 'package:shorts_ai/routing/app_router.dart';
 import 'package:shorts_ai/routing/routes.dart';
 
@@ -121,9 +122,12 @@ void main() {
     await _enterTextByKey(tester, const Key('login-email'), 'devi@test.id');
     await _enterTextByKey(tester, const Key('login-password'), 'secret123');
     await _tapVisible(tester, find.text('Masuk').last);
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump();
 
-    expect(find.byKey(const Key('placeholder-Home')), findsOneWidget);
+    expect(find.byKey(const Key('home-screen')), findsOneWidget);
   });
 
   testWidgets('navigation flow login to signup to forgot to otp to reset',
@@ -260,6 +264,7 @@ class _RouterHarnessState extends State<_RouterHarness> {
     return ProviderScope(
       overrides: [
         authMockDelayProvider.overrideWithValue(widget.authDelay),
+        homeDataProvider.overrideWith((ref) async => _emptyHomeData),
         authProvider.overrideWith(
           (ref) => _SyncingAuthNotifier(
             _authStateListenable,
@@ -274,6 +279,14 @@ class _RouterHarnessState extends State<_RouterHarness> {
     );
   }
 }
+
+const _emptyHomeData = HomeData(
+  recentProjects: [],
+  spotlightTemplates: [],
+  streakCount: 1,
+  tipOfTheDay: 'Test tip',
+  hasUnreadNotifications: false,
+);
 
 class _SyncingAuthNotifier extends AuthNotifier {
   _SyncingAuthNotifier(

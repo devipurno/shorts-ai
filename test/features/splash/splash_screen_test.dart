@@ -7,6 +7,7 @@ import 'package:shorts_ai/core/theme/app_theme.dart';
 import 'package:shorts_ai/core/theme/app_typography.dart';
 import 'package:shorts_ai/features/auth/models/user.dart';
 import 'package:shorts_ai/features/auth/providers/auth_provider.dart';
+import 'package:shorts_ai/features/home/providers/home_provider.dart';
 import 'package:shorts_ai/features/onboarding/providers/onboarding_provider.dart';
 import 'package:shorts_ai/features/splash/splash_screen.dart';
 import 'package:shorts_ai/routing/app_router.dart';
@@ -70,7 +71,7 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     await tester.pump();
 
-    expect(find.byKey(const Key('placeholder-Home')), findsOneWidget);
+    expect(find.byKey(const Key('home-screen')), findsOneWidget);
   });
 
   testWidgets('navigates completed unauthenticated users to login',
@@ -117,6 +118,7 @@ class _SplashHarness extends StatelessWidget {
         authProvider.overrideWith(
           (ref) => _SeededAuthNotifier(authState),
         ),
+        homeDataProvider.overrideWith((ref) async => _emptyHomeData),
       ],
       child: MaterialApp.router(
         theme: darkTheme(),
@@ -125,6 +127,14 @@ class _SplashHarness extends StatelessWidget {
     );
   }
 }
+
+const _emptyHomeData = HomeData(
+  recentProjects: [],
+  spotlightTemplates: [],
+  streakCount: 1,
+  tipOfTheDay: 'Test tip',
+  hasUnreadNotifications: false,
+);
 
 class _SeededAuthNotifier extends AuthNotifier {
   _SeededAuthNotifier(AuthState seed) : super(mockDelay: Duration.zero) {

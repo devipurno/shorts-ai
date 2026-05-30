@@ -8,6 +8,7 @@ import 'package:shorts_ai/core/theme/app_colors.dart';
 import 'package:shorts_ai/core/theme/app_theme.dart';
 import 'package:shorts_ai/core/theme/app_typography.dart';
 import 'package:shorts_ai/features/auth/providers/auth_provider.dart';
+import 'package:shorts_ai/features/home/providers/home_provider.dart';
 import 'package:shorts_ai/features/onboarding/providers/onboarding_provider.dart';
 import 'package:shorts_ai/features/splash/splash_screen.dart';
 import 'package:shorts_ai/routing/app_router.dart';
@@ -50,12 +51,12 @@ void main() {
     );
 
     await tester.pumpWidget(_RouterHarness(router: router));
-    await tester.pumpAndSettle();
+    await _pumpRoute(tester);
 
     router.go(AppRoutes.home);
-    await tester.pumpAndSettle();
+    await _pumpRoute(tester);
 
-    expect(find.byKey(const Key('placeholder-Home')), findsOneWidget);
+    expect(find.byKey(const Key('home-screen')), findsOneWidget);
     expect(find.byType(NavigationBar), findsOneWidget);
   });
 
@@ -66,22 +67,22 @@ void main() {
     );
 
     await tester.pumpWidget(_RouterHarness(router: router));
-    await tester.pumpAndSettle();
+    await _pumpRoute(tester);
 
     await tester.tap(find.text('Library').last);
-    await tester.pumpAndSettle();
+    await _pumpRoute(tester);
     expect(find.byKey(const Key('placeholder-Library')), findsOneWidget);
 
     await tester.tap(find.text('Create').last);
-    await tester.pumpAndSettle();
+    await _pumpRoute(tester);
     expect(find.byKey(const Key('placeholder-Create')), findsOneWidget);
 
     await tester.tap(find.text('Analytics').last);
-    await tester.pumpAndSettle();
+    await _pumpRoute(tester);
     expect(find.byKey(const Key('placeholder-Analytics')), findsOneWidget);
 
     await tester.tap(find.text('Profile').last);
-    await tester.pumpAndSettle();
+    await _pumpRoute(tester);
     expect(find.byKey(const Key('placeholder-Profile')), findsOneWidget);
   });
 
@@ -125,6 +126,11 @@ void main() {
   });
 }
 
+Future<void> _pumpRoute(WidgetTester tester) async {
+  await tester.pump();
+  await tester.pump(const Duration(seconds: 1));
+}
+
 class _RouterHarness extends StatelessWidget {
   const _RouterHarness({required this.router});
 
@@ -140,6 +146,9 @@ class _RouterHarness extends StatelessWidget {
       routerConfig: router,
       builder: (context, child) {
         return ProviderScope(
+          overrides: [
+            homeDataProvider.overrideWith((ref) async => _emptyHomeData),
+          ],
           child: ColoredBox(
             color: AppColors.obsidian,
             child: child ?? const SizedBox.shrink(),
@@ -149,3 +158,11 @@ class _RouterHarness extends StatelessWidget {
     );
   }
 }
+
+const _emptyHomeData = HomeData(
+  recentProjects: [],
+  spotlightTemplates: [],
+  streakCount: 1,
+  tipOfTheDay: 'Test tip',
+  hasUnreadNotifications: false,
+);
