@@ -9,6 +9,7 @@ void main() {
     expect(AppRoutes.signup, '/signup');
     expect(AppRoutes.forgotPassword, '/forgot-password');
     expect(AppRoutes.otpVerify, '/otp-verify');
+    expect(AppRoutes.resetPassword, '/reset-password');
     expect(AppRoutes.home, '/home');
     expect(AppRoutes.library, '/library');
     expect(AppRoutes.create, '/create');
@@ -43,6 +44,14 @@ void main() {
       '/editor/video-1/thumbnail',
     );
     expect(AppRoutes.templateDetailPath('gold'), '/templates/gold');
+    expect(
+      AppRoutes.otpVerifyPath(email: 'devi@test.id', flow: 'forgot-password'),
+      '/otp-verify?email=devi%40test.id&flow=forgot-password',
+    );
+    expect(
+      AppRoutes.resetPasswordPath(email: 'devi@test.id'),
+      '/reset-password?email=devi%40test.id',
+    );
   });
 
   test('classifies public and main tab routes', () {
@@ -52,6 +61,9 @@ void main() {
     expect(AppRoutes.authEntryRoutes, contains(AppRoutes.login));
     expect(AppRoutes.authEntryRoutes, contains(AppRoutes.signup));
     expect(AppRoutes.authEntryRoutes, contains(AppRoutes.onboarding));
+    expect(AppRoutes.authEntryRoutes, contains(AppRoutes.forgotPassword));
+    expect(AppRoutes.authEntryRoutes, contains(AppRoutes.otpVerify));
+    expect(AppRoutes.authEntryRoutes, contains(AppRoutes.resetPassword));
     expect(AppRoutes.isMainTab(AppRoutes.create), isTrue);
     expect(AppRoutes.mainTabs, hasLength(5));
   });

@@ -87,7 +87,7 @@ void main() {
     await _tapContinue(tester);
     await tester.pump(const Duration(milliseconds: 500));
 
-    expect(find.byKey(const Key('placeholder-Login')), findsOneWidget);
+    expect(find.byKey(const Key('login-screen')), findsOneWidget);
     expect(preferences.getBool(hasCompletedOnboardingKey), isTrue);
     expect(userRepository.updatedProfiles.single.tier,
         shared_user.SubscriptionTier.premium);

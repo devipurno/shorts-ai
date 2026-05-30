@@ -16,6 +16,8 @@ sealed class AuthState {
   const AuthState();
 }
 
+enum OtpPurpose { signup, forgotPassword }
+
 final class Unauthenticated extends AuthState {
   const Unauthenticated();
 
@@ -111,6 +113,61 @@ class AuthNotifier extends StateNotifier<AuthState> {
         createdAt: DateTime.now(),
       ),
     );
+  }
+
+  Future<void> sendOtp(String email) async {
+    state = const Authenticating();
+    await Future<void>.delayed(_mockDelay);
+
+    if (email.trim().isEmpty || email.toLowerCase().contains('fail')) {
+      state = const AuthError('Unable to send OTP code.');
+      return;
+    }
+
+    state = const Unauthenticated();
+  }
+
+  Future<void> verifyOtp(
+    String code, {
+    String? email,
+    OtpPurpose purpose = OtpPurpose.forgotPassword,
+  }) async {
+    state = const Authenticating();
+    await Future<void>.delayed(_mockDelay);
+
+    if (code.length != 6 || code == '000000') {
+      state = const AuthError('Invalid OTP code.');
+      return;
+    }
+
+    if (purpose == OtpPurpose.signup) {
+      final normalizedEmail =
+          email?.trim().isNotEmpty == true ? email!.trim() : 'otp@autoshort.id';
+      state = Authenticated(
+        User(
+          id: _mockUserId(normalizedEmail),
+          email: normalizedEmail,
+          name: normalizedEmail.split('@').first,
+          tier: SubscriptionTier.free,
+          createdAt: DateTime.now(),
+        ),
+      );
+      return;
+    }
+
+    state = const Unauthenticated();
+  }
+
+  Future<void> resetPassword(String password) async {
+    state = const Authenticating();
+    await Future<void>.delayed(_mockDelay);
+
+    if (password.length < 8 || password == 'fail-password') {
+      state = const AuthError('Unable to reset password.');
+      return;
+    }
+
+    state = const Unauthenticated();
   }
 
   Future<void> logout() async {

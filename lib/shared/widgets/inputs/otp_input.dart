@@ -10,11 +10,13 @@ class AppOtpInput extends StatefulWidget {
   const AppOtpInput({
     super.key,
     this.length = 6,
+    this.autoFocus = false,
     this.onChanged,
     this.onCompleted,
   });
 
   final int length;
+  final bool autoFocus;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onCompleted;
 
@@ -31,6 +33,13 @@ class _AppOtpInputState extends State<AppOtpInput> {
     super.initState();
     _controllers = List.generate(widget.length, (_) => TextEditingController());
     _focusNodes = List.generate(widget.length, (_) => FocusNode());
+    if (widget.autoFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _focusNodes.isNotEmpty) {
+          _focusNodes.first.requestFocus();
+        }
+      });
+    }
   }
 
   @override

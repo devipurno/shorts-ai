@@ -8,6 +8,7 @@ class AppRoutes {
   static const signup = '/signup';
   static const forgotPassword = '/forgot-password';
   static const otpVerify = '/otp-verify';
+  static const resetPassword = '/reset-password';
 
   // Main app
   static const home = '/home';
@@ -47,6 +48,9 @@ class AppRoutes {
     onboarding,
     login,
     signup,
+    forgotPassword,
+    otpVerify,
+    resetPassword,
   };
 
   static const publicRoutes = {
@@ -56,6 +60,7 @@ class AppRoutes {
     signup,
     forgotPassword,
     otpVerify,
+    resetPassword,
   };
 
   static bool isPublicPath(String path) => publicRoutes.contains(path);
@@ -72,4 +77,24 @@ class AppRoutes {
 
   static String templateDetailPath(String templateId) =>
       '/templates/$templateId';
+
+  static String otpVerifyPath({
+    required String email,
+    required String flow,
+  }) {
+    return Uri(
+      path: otpVerify,
+      queryParameters: {
+        'email': email,
+        'flow': flow,
+      },
+    ).toString();
+  }
+
+  static String resetPasswordPath({required String email}) {
+    return Uri(
+      path: resetPassword,
+      queryParameters: {'email': email},
+    ).toString();
+  }
 }

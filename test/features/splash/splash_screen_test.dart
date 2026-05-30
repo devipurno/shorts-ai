@@ -87,7 +87,7 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     await tester.pump();
 
-    expect(find.byKey(const Key('placeholder-Login')), findsOneWidget);
+    expect(find.byKey(const Key('login-screen')), findsOneWidget);
   });
 
   test('splash animation asset path is wired', () {

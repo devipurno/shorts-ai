@@ -4,6 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../features/auth/models/user.dart';
 import '../features/auth/providers/auth_provider.dart';
+import '../features/auth/screens/forgot_password_screen.dart';
+import '../features/auth/screens/login_screen.dart';
+import '../features/auth/screens/otp_verify_screen.dart';
+import '../features/auth/screens/reset_password_screen.dart';
+import '../features/auth/screens/signup_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../shared/widgets/_dev/component_gallery.dart';
@@ -46,21 +51,28 @@ GoRouter createAppRouter({
       ),
       GoRoute(
         path: AppRoutes.login,
-        builder: (context, state) => const PlaceholderScreen(name: 'Login'),
+        builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
         path: AppRoutes.signup,
-        builder: (context, state) => const PlaceholderScreen(name: 'Signup'),
+        builder: (context, state) => const SignupScreen(),
       ),
       GoRoute(
         path: AppRoutes.forgotPassword,
-        builder: (context, state) =>
-            const PlaceholderScreen(name: 'Forgot Password'),
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
       GoRoute(
         path: AppRoutes.otpVerify,
-        builder: (context, state) =>
-            const PlaceholderScreen(name: 'OTP Verify'),
+        builder: (context, state) => OtpVerifyScreen(
+          email: state.uri.queryParameters['email'] ?? '',
+          flow: state.uri.queryParameters['flow'] ?? 'forgot-password',
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.resetPassword,
+        builder: (context, state) => ResetPasswordScreen(
+          email: state.uri.queryParameters['email'] ?? '',
+        ),
       ),
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),

@@ -109,7 +109,7 @@ void main() {
     await tester.pumpWidget(_RouterHarness(router: router));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('placeholder-Login')), findsOneWidget);
+    expect(find.byKey(const Key('login-screen')), findsOneWidget);
   });
 
   testWidgets('unknown path renders error screen', (tester) async {
