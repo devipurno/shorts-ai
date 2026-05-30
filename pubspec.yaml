@@ -69,6 +69,10 @@ dependencies:
   freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0
   faker: ^2.2.0
+  ffmpeg_kit_flutter_min: ^6.0.3
+  audioplayers: ^6.7.0
+  screenshot: ^3.0.0
+  flutter_colorpicker: ^1.1.0
 
 dev_dependencies:
   flutter_test:

@@ -152,8 +152,8 @@ void main() {
     await tester.tap(find.byKey(const Key('project-card-project_1')));
     await _pumpHomeReady(tester);
 
-    expect(find.byKey(const Key('placeholder-Mini Editor')), findsOneWidget);
-    expect(find.text('videoId: project_1'), findsOneWidget);
+    expect(find.byKey(const Key('mini-editor-screen')), findsOneWidget);
+    expect(find.text('Launch clip'), findsOneWidget);
 
     router.dispose();
     notifier.dispose();

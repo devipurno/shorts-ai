@@ -9,6 +9,7 @@ import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/otp_verify_screen.dart';
 import '../features/auth/screens/reset_password_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
+import '../features/editor/mini_editor_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/library/library_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
@@ -120,9 +121,8 @@ GoRouter createAppRouter({
       ),
       GoRoute(
         path: AppRoutes.miniEditor,
-        builder: (context, state) => PlaceholderScreen(
-          name: 'Mini Editor',
-          detail: 'videoId: ${state.pathParameters['videoId']}',
+        builder: (context, state) => MiniEditorScreen(
+          videoId: state.pathParameters['videoId'] ?? '',
         ),
       ),
       GoRoute(
