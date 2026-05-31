@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/analytics/analytics_screen.dart';
 import '../features/auth/models/user.dart';
 import '../features/auth/providers/auth_provider.dart';
 import '../features/auth/screens/forgot_password_screen.dart';
@@ -103,8 +104,7 @@ GoRouter createAppRouter({
           ),
           GoRoute(
             path: AppRoutes.analytics,
-            builder: (context, state) =>
-                const PlaceholderScreen(name: 'Analytics'),
+            builder: (context, state) => const AnalyticsScreen(),
           ),
           GoRoute(
             path: AppRoutes.profile,

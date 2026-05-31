@@ -82,7 +82,7 @@ void main() {
 
     await tester.tap(find.text('Analytics').last);
     await _pumpRoute(tester);
-    expect(find.byKey(const Key('placeholder-Analytics')), findsOneWidget);
+    expect(find.byKey(const Key('analytics-screen')), findsOneWidget);
 
     await tester.tap(find.text('Profile').last);
     await _pumpRoute(tester);
