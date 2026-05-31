@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import '../../../core/errors/app_exception.dart';
 import '../../models/subscription.dart';
@@ -16,6 +17,13 @@ class MockSubscriptionRepository implements SubscriptionRepository {
   final MockRepositoryRuntime _runtime;
   final _controller = StreamController<void>.broadcast();
   final _subscriptions = <Subscription>[];
+
+  @override
+  Future<int> getLifetimeSlots() async {
+    await _runtime.simulateNetwork();
+    final reservedSlots = math.Random(42).nextInt(30) + 1;
+    return 100 - reservedSlots;
+  }
 
   @override
   Future<Subscription?> getByUserId(String userId) async {

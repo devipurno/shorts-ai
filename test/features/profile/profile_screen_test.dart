@@ -303,6 +303,9 @@ class _FakeAnalyticsRepository implements AnalyticsRepository {
 
 class _FakeSubscriptionRepository implements SubscriptionRepository {
   @override
+  Future<int> getLifetimeSlots() async => 82;
+
+  @override
   Future<void> cancel(String id) async {}
 
   @override

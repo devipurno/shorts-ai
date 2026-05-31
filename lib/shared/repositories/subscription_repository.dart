@@ -1,6 +1,8 @@
 import '../models/subscription.dart';
 
 abstract class SubscriptionRepository {
+  Future<int> getLifetimeSlots();
+
   Future<Subscription?> getByUserId(String userId);
 
   Future<Subscription?> getById(String id);

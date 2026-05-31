@@ -17,6 +17,7 @@ import '../features/hook_generator/hook_generator_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/library/library_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
+import '../features/pricing/pricing_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/subtitle/subtitle_studio_screen.dart';
@@ -154,7 +155,7 @@ GoRouter createAppRouter({
       ),
       GoRoute(
         path: AppRoutes.pricing,
-        builder: (context, state) => const PlaceholderScreen(name: 'Pricing'),
+        builder: (context, state) => const PricingScreen(),
       ),
       GoRoute(
         path: AppRoutes.checkout,
