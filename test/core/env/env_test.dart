@@ -26,7 +26,9 @@ void main() {
     expect(Env.supabaseAnonKey, 'anon-key');
     expect(Env.supabaseClientKey, 'anon-key');
     expect(Env.useSupabase, isTrue);
+    expect(Env.apiBaseUrlOrNull, 'https://api.example.com');
     expect(Env.apiBaseUrl, 'https://api.example.com');
+    expect(Env.useApiRepositories, isTrue);
     expect(Env.openaiApiKey, 'openai-key');
   });
 
@@ -41,6 +43,19 @@ void main() {
     );
 
     expect(Env.useSupabase, isFalse);
+  });
+
+  test('USE_MOCK disables API repository switching', () {
+    Env.loadFromStringForTest(
+      [
+        'USE_MOCK=true',
+        'API_BASE_URL=https://api.example.com',
+      ].join('\n'),
+      failFast: false,
+    );
+
+    expect(Env.useMockRepositories, isTrue);
+    expect(Env.useApiRepositories, isFalse);
   });
 
   test('fails fast with a clear missing variable message', () {
@@ -63,6 +78,8 @@ void main() {
   test('uses default API base URL when optional env is absent', () {
     Env.loadFromStringForTest('', failFast: false);
 
+    expect(Env.apiBaseUrlOrNull, isNull);
     expect(Env.apiBaseUrl, Env.defaultApiBaseUrl);
+    expect(Env.useApiRepositories, isFalse);
   });
 }

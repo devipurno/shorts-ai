@@ -79,6 +79,7 @@ dependencies:
   video_thumbnail: ^0.5.6
   table_calendar: ^3.2.0
   fl_chart: ^1.2.0
+  connectivity_plus: ^7.1.1
 
 dev_dependencies:
   flutter_test:
@@ -99,6 +100,7 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.7
   freezed: ^3.2.3
+  http_mock_adapter: ^0.6.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

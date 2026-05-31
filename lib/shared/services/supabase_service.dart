@@ -38,6 +38,8 @@ class SupabaseService {
 
   bool get isAuthenticated => currentSession != null;
 
+  String? get accessToken => currentSession?.accessToken;
+
   SupabaseAuthProfile? get currentAuthProfile => _mapSupabaseUser(currentUser);
 
   Stream<SupabaseAuthProfile?> watchAuthProfiles() {
@@ -98,6 +100,11 @@ class SupabaseService {
   }
 
   Future<void> signOut() => client.auth.signOut();
+
+  Future<String?> refreshAccessToken() async {
+    final response = await client.auth.refreshSession();
+    return response.session?.accessToken;
+  }
 
   Future<Map<String, dynamic>?> getProfileRow(String userId) async {
     final row =

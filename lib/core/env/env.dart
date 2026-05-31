@@ -52,7 +52,17 @@ class Env {
     return supabaseUrl != null && supabaseClientKey != null;
   }
 
-  static String get apiBaseUrl => _value('API_BASE_URL') ?? defaultApiBaseUrl;
+  static String? get apiBaseUrlOrNull => _value('API_BASE_URL');
+  static String get apiBaseUrl => apiBaseUrlOrNull ?? defaultApiBaseUrl;
+  static bool get useMockRepositories => _bool('USE_MOCK') ?? false;
+  static bool get useApiRepositories {
+    final explicit = _bool('USE_API');
+    if (explicit != null) {
+      return explicit && !useMockRepositories;
+    }
+    return apiBaseUrlOrNull != null && !useMockRepositories;
+  }
+
   static String? get openaiApiKey => _value('OPENAI_API_KEY');
   static String? get elevenLabsApiKey => _value('ELEVENLABS_API_KEY');
   static String? get sentryDsn => _value('SENTRY_DSN');
