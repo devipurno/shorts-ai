@@ -9,6 +9,7 @@ import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/otp_verify_screen.dart';
 import '../features/auth/screens/reset_password_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
+import '../features/brand_kit/brand_kit_screen.dart';
 import '../features/editor/mini_editor_screen.dart';
 import '../features/hook_generator/hook_generator_screen.dart';
 import '../features/home/home_screen.dart';
@@ -144,7 +145,7 @@ GoRouter createAppRouter({
       ),
       GoRoute(
         path: AppRoutes.brandKit,
-        builder: (context, state) => const PlaceholderScreen(name: 'Brand Kit'),
+        builder: (context, state) => const BrandKitScreen(),
       ),
       GoRoute(
         path: AppRoutes.contentCalendar,
