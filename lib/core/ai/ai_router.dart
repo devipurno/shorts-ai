@@ -1,0 +1,109 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+
+import 'ai_service.dart';
+import 'cache/ai_cache.dart';
+import 'models/ai_request.dart';
+import 'providers/deepseek_provider.dart';
+import 'providers/edge_tts_provider.dart';
+import 'providers/gemini_provider.dart';
+import 'providers/groq_provider.dart';
+import 'providers/pollinations_provider.dart';
+import 'providers/provider_utils.dart';
+import 'quota_tracker.dart';
+import '../utils/result.dart';
+
+class AIRouter implements AIService {
+  AIRouter({
+    required GeminiProvider gemini,
+    required GroqProvider groq,
+    required DeepSeekProvider deepSeek,
+    required EdgeTTSProvider edgeTts,
+    required PollinationsProvider pollinations,
+    required QuotaTracker quotaTracker,
+    required AICache cache,
+  })  : _gemini = gemini,
+        _groq = groq,
+        _deepSeek = deepSeek,
+        _edgeTts = edgeTts,
+        _pollinations = pollinations,
+        _quota = quotaTracker,
+        _cache = cache;
+
+  final GeminiProvider _gemini;
+  final GroqProvider _groq;
+  final DeepSeekProvider _deepSeek;
+  final EdgeTTSProvider _edgeTts;
+  final PollinationsProvider _pollinations;
+  final QuotaTracker _quota;
+  final AICache _cache;
+
+  @override
+  Future<AIResult<LLMResponse>> generateText(LLMRequest request) async {
+    final cacheKey = cacheKeyFor('llm', request.toJson());
+    final cached = await _cache.get(cacheKey);
+    if (cached != null) {
+      return Result.success(LLMResponse(text: cached, provider: 'cache'));
+    }
+
+    final providers = <LLMProvider>[_gemini, _groq, _deepSeek];
+    for (final provider in providers) {
+      if (!await _quota.canUseProvider(provider.providerName)) {
+        continue;
+      }
+      final result = await provider.generateText(request);
+      if (result.isSuccess) {
+        final value = result.valueOrNull!;
+        await _quota.recordUsage(provider.providerName);
+        await _cache.set(cacheKey, value.text, ttl: const Duration(hours: 24));
+        return result;
+      }
+      final error = result.errorOrNull;
+      if (error is QuotaExceeded) {
+        await _quota.recordUsage(provider.providerName, amount: 999999);
+      }
+    }
+
+    return const Result.failure(AIProviderError.allProvidersExhausted());
+  }
+
+  @override
+  Future<AIResult<STTResponse>> transcribeAudio(STTRequest request) async {
+    final cacheKey = cacheKeyFor('stt', request.toJson());
+    final cached = await _cache.get(cacheKey);
+    if (cached != null) {
+      return Result.success(
+        STTResponse(text: cached, provider: 'cache', language: request.language),
+      );
+    }
+    if (!await _quota.canUseProvider('groq_whisper')) {
+      return const Result.failure(
+        AIProviderError.quotaExceeded(provider: 'groq_whisper'),
+      );
+    }
+    final result = await _groq.transcribeAudio(request);
+    if (result.isSuccess) {
+      await _quota.recordUsage('groq_whisper');
+      await _cache.set(cacheKey, result.valueOrNull!.text,
+          ttl: const Duration(hours: 1));
+    }
+    return result;
+  }
+
+  @override
+  Future<AIResult<TTSResponse>> generateSpeech(TTSRequest request) {
+    return _edgeTts.generateSpeech(request);
+  }
+
+  @override
+  Future<AIResult<ImageResponse>> generateImage(ImageRequest request) {
+    return _pollinations.generateImage(request);
+  }
+
+  static String cacheKeyFor(String type, Map<String, Object?> payload) {
+    final canonical = jsonEncode(payload);
+    final hash = sha256.convert(utf8.encode(canonical));
+    return 'ai:$type:$hash';
+  }
+}

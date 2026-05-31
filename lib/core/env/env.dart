@@ -65,6 +65,12 @@ class Env {
 
   static String? get openaiApiKey => _value('OPENAI_API_KEY');
   static String? get elevenLabsApiKey => _value('ELEVENLABS_API_KEY');
+  static String? get geminiApiKey => _value('GEMINI_API_KEY');
+  static String? get groqApiKey => _value('GROQ_API_KEY');
+  static String? get deepSeekApiKey => _value('DEEPSEEK_API_KEY');
+  static String? get upstashRedisRestUrl => _value('UPSTASH_REDIS_REST_URL');
+  static String? get upstashRedisRestToken =>
+      _value('UPSTASH_REDIS_REST_TOKEN');
   static String? get sentryDsn => _value('SENTRY_DSN');
   static String? get firebaseApiKey => _value('FIREBASE_API_KEY');
   static String? get r2AccountId => _value('R2_ACCOUNT_ID');
