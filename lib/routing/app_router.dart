@@ -10,6 +10,7 @@ import '../features/auth/screens/otp_verify_screen.dart';
 import '../features/auth/screens/reset_password_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
 import '../features/brand_kit/brand_kit_screen.dart';
+import '../features/calendar/content_calendar_screen.dart';
 import '../features/editor/mini_editor_screen.dart';
 import '../features/hook_generator/hook_generator_screen.dart';
 import '../features/home/home_screen.dart';
@@ -149,8 +150,7 @@ GoRouter createAppRouter({
       ),
       GoRoute(
         path: AppRoutes.contentCalendar,
-        builder: (context, state) =>
-            const PlaceholderScreen(name: 'Content Calendar'),
+        builder: (context, state) => const ContentCalendarScreen(),
       ),
       GoRoute(
         path: AppRoutes.pricing,
