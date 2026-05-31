@@ -8,15 +8,19 @@ import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../routing/routes.dart';
 import '../../shared/models/template.dart';
+import '../../shared/widgets/buttons/fab.dart';
+import '../../shared/widgets/buttons/icon_button.dart';
 import '../../shared/widgets/display/app_chip.dart';
 import '../../shared/widgets/feedback/app_shimmer.dart';
 import '../../shared/widgets/feedback/empty_state.dart';
 import '../../shared/widgets/feedback/error_state.dart';
 import '../../shared/widgets/inputs/search_input.dart';
 import '../../shared/widgets/layout/page_scaffold.dart';
-import '../../shared/widgets/navigation/app_appbar.dart';
-import 'providers/template_library_provider.dart';
-import 'widgets/template_marketplace_card.dart';
+import '../../shared/widgets/modals/app_bottom_sheet.dart';
+import '../auth/providers/current_user_provider.dart';
+import 'providers/template_provider.dart';
+import 'widgets/podcast_split_card.dart';
+import 'widgets/template_card.dart';
 
 class TemplateLibraryScreen extends ConsumerStatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -28,6 +32,7 @@ class TemplateLibraryScreen extends ConsumerStatefulWidget {
 
 class _TemplateLibraryScreenState extends ConsumerState<TemplateLibraryScreen> {
   late final TextEditingController _searchController = TextEditingController();
+  int _page = 0;
 
   @override
   void dispose() {
@@ -37,14 +42,48 @@ class _TemplateLibraryScreenState extends ConsumerState<TemplateLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final templates = ref.watch(templateLibraryProvider);
-    final categories = ref.watch(templateCategoriesProvider);
-    final filter = ref.watch(templateLibraryFilterProvider);
+    final category = ref.watch(templateCategoryProvider);
+    final query = ref.watch(templateSearchQueryProvider);
+    final filter =
+        TemplateFilter(category: category, query: query, page: _page);
+    final page = ref.watch(templateListProvider(filter));
+    final user = ref.watch(currentUserProvider);
+    final premiumUser =
+        user?.tier.name == 'premium' || user?.tier.name == 'lifetime';
 
     return PageScaffold(
       key: const Key('template-library-screen'),
-      title: 'Templates',
+      title: 'Template Library',
       padding: EdgeInsets.zero,
+      actions: [
+        AppIconButton(
+          key: const Key('template-search-action'),
+          tooltip: 'Search templates',
+          icon: const Icon(Icons.search_rounded),
+          onPressed: () => FocusScope.of(context).requestFocus(FocusNode()),
+        ),
+        AppIconButton(
+          key: const Key('template-filter-action'),
+          tooltip: 'Filter templates',
+          icon: const Icon(Icons.filter_alt_outlined),
+          onPressed: () => _showCategorySheet(context),
+        ),
+      ],
+      floatingActionButton: AppFab(
+        key: const Key('template-custom-fab'),
+        label: 'Custom Template',
+        icon: Icon(premiumUser ? Icons.add_rounded : Icons.lock_rounded),
+        onPressed: () {
+          if (!premiumUser) {
+            context.go(AppRoutes.pricing);
+            return;
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Template builder siap di stage berikutnya')),
+          );
+        },
+      ),
       body: RefreshIndicator(
         color: AppColors.gold,
         backgroundColor: AppColors.surface1,
@@ -66,68 +105,73 @@ class _TemplateLibraryScreenState extends ConsumerState<TemplateLibraryScreen> {
                     AppSearchInput(
                       key: const Key('template-search-input'),
                       controller: _searchController,
-                      hint: 'Cari template, niche, atau hook',
-                      onChanged: (value) => ref
-                          .read(templateSearchQueryProvider.notifier)
-                          .state = value,
+                      hint: 'Cari template atau niche',
+                      onChanged: (value) {
+                        setState(() => _page = 0);
+                        ref.read(templateSearchQueryProvider.notifier).state =
+                            value;
+                      },
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    _FeaturedTemplateBanner(
-                      onTap: () => context
-                          .go(AppRoutes.templateDetailPath('template_16')),
+                    _CategorySegmentedControl(
+                      selected: category,
+                      onSelected: (value) {
+                        setState(() => _page = 0);
+                        ref.read(templateCategoryProvider.notifier).state =
+                            value;
+                      },
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    _CategoryFilter(
-                      categories: categories.value ?? const [],
-                      selectedCategory: filter.category,
-                      onSelected: (value) => ref
-                          .read(templateLibraryFilterProvider.notifier)
-                          .setCategory(value),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    _FilterRow(
-                      filter: filter,
-                      onTierChanged: (value) => ref
-                          .read(templateLibraryFilterProvider.notifier)
-                          .setTier(value),
-                      onSortChanged: (value) => ref
-                          .read(templateLibraryFilterProvider.notifier)
-                          .setSort(value),
-                      onClear: filter.hasActiveFilters ||
-                              ref.watch(templateSearchQueryProvider).isNotEmpty
-                          ? _clearFilters
-                          : null,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      'Marketplace',
-                      style: AppTypography.headlineSmall,
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      '22 blueprint siap pakai untuk format Shorts yang berbeda.',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    page.when(
+                      data: (value) => _CountHeader(page: value),
+                      loading: () => AppShimmer.box(width: 180, height: 18),
+                      error: (error, stackTrace) => Text('Template unavailable',
+                          style: AppTypography.bodySmall),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                   ],
                 ),
               ),
             ),
-            templates.when(
+            if (category == TemplateCategory.podcastSplit)
+              page.maybeWhen(
+                data: (value) => SliverPadding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  sliver: SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                      child: PodcastSplitCard(
+                        template: value.items.firstOrNull,
+                        onTap: value.items.isEmpty
+                            ? null
+                            : () => _openPodcastSplit(value.items.first),
+                      ),
+                    ),
+                  ),
+                ),
+                orElse: () => const SliverToBoxAdapter(),
+              ),
+            page.when(
               loading: () => const _TemplateLoadingGrid(),
               error: (error, stackTrace) => SliverFillRemaining(
                 hasScrollBody: false,
                 child: ErrorState(
                   title: 'Template belum bisa dimuat.',
                   message: 'Coba refresh atau ulangi beberapa saat lagi.',
-                  onRetry: () => ref.invalidate(templateLibraryProvider),
+                  onRetry: () => ref.invalidate(templateListProvider(filter)),
                 ),
               ),
-              data: (items) => _TemplateGrid(templates: items),
+              data: (value) => _TemplateGrid(
+                page: value,
+                onOpen: _openTemplate,
+                onPreview: _showPreview,
+                onNextPage: value.hasMore
+                    ? () => setState(() => _page = value.page + 1)
+                    : null,
+              ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            const SliverToBoxAdapter(child: SizedBox(height: 110)),
           ],
         ),
       ),
@@ -135,132 +179,153 @@ class _TemplateLibraryScreenState extends ConsumerState<TemplateLibraryScreen> {
   }
 
   Future<void> _refresh() async {
-    ref
-      ..invalidate(templateLibraryProvider)
-      ..invalidate(templateCategoriesProvider);
+    ref.invalidate(templateListProvider);
     await Future<void>.delayed(const Duration(milliseconds: 250));
   }
 
-  void _clearFilters() {
-    _searchController.clear();
-    ref.read(templateSearchQueryProvider.notifier).state = '';
-    ref.read(templateLibraryFilterProvider.notifier).clear();
+  void _openTemplate(Template template) {
+    context.go(AppRoutes.templateDetailPath(template.id));
   }
-}
 
-class TemplateDetailScreen extends ConsumerWidget {
-  const TemplateDetailScreen({
-    super.key,
-    required this.templateId,
-  });
-
-  final String templateId;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final template = ref.watch(templateDetailProvider(templateId));
-
-    return Scaffold(
-      key: const Key('template-detail-screen'),
-      backgroundColor: AppColors.obsidian,
-      appBar: AppAppBar(
-        title: 'Template Detail',
-        showBackButton: true,
-        onBack: () => context.pop(),
+  void _openPodcastSplit(Template template) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) => PodcastSplitMockScreen(template: template),
       ),
-      body: template.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => ErrorState(
-          title: 'Template tidak bisa dibuka.',
-          message: 'Coba kembali ke marketplace.',
-          onRetry: () => ref.invalidate(templateDetailProvider(templateId)),
-        ),
-        data: (item) {
-          if (item == null) {
-            return const EmptyState(
-              title: 'Template tidak ditemukan',
-              message: 'Template ini mungkin sudah tidak tersedia.',
-            );
-          }
+    );
+  }
 
-          return _TemplateDetailContent(template: item);
+  Future<void> _showPreview(Template template) async {
+    await AppBottomSheet.show<void>(
+      context,
+      child: _TemplatePreviewSheet(
+        template: template,
+        onUse: () {
+          Navigator.of(context).pop();
+          context.go(AppRoutes.templateDetailPath(template.id));
         },
+      ),
+    );
+  }
+
+  Future<void> _showCategorySheet(BuildContext context) {
+    return AppBottomSheet.show<void>(
+      context,
+      child: Column(
+        key: const Key('template-filter-sheet'),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Filter category', style: AppTypography.headlineSmall),
+          const SizedBox(height: AppSpacing.md),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              for (final category in TemplateCategory.values)
+                AppChip(
+                  label: category.label,
+                  variant: AppChipVariant.selectable,
+                  selected: ref.read(templateCategoryProvider) == category,
+                  onSelected: (_) {
+                    setState(() => _page = 0);
+                    ref.read(templateCategoryProvider.notifier).state =
+                        category;
+                    Navigator.of(context).pop();
+                  },
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
-class _TemplateDetailContent extends ConsumerWidget {
-  const _TemplateDetailContent({required this.template});
+class _CategorySegmentedControl extends StatelessWidget {
+  const _CategorySegmentedControl({
+    required this.selected,
+    required this.onSelected,
+  });
 
-  final Template template;
+  final TemplateCategory selected;
+  final ValueChanged<TemplateCategory> onSelected;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final premium = template.tier == TemplateTier.premium;
+  Widget build(BuildContext context) {
+    return SizedBox(
+      key: const Key('template-category-segments'),
+      height: 42,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) {
+          final category = TemplateCategory.values[index];
+          return AppChip(
+            key: Key('template-category-${category.name}'),
+            label: category.label,
+            variant: AppChipVariant.selectable,
+            selected: selected == category,
+            onSelected: (_) => onSelected(category),
+          );
+        },
+        separatorBuilder: (context, index) =>
+            const SizedBox(width: AppSpacing.sm),
+        itemCount: TemplateCategory.values.length,
+      ),
+    );
+  }
+}
 
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+class _CountHeader extends StatelessWidget {
+  const _CountHeader({required this.page});
+
+  final TemplatePage page;
+
+  @override
+  Widget build(BuildContext context) {
+    final showing = page.items.length + page.page * page.pageSize;
+
+    return Row(
       children: [
-        SizedBox(
-          height: 420,
-          child: TemplateMarketplaceCard(template: template),
+        Expanded(
+          child: Text(
+            'Showing $showing of ${page.total}',
+            style: AppTypography.labelLarge,
+          ),
         ),
-        const SizedBox(height: AppSpacing.lg),
-        Row(
-          children: [
-            Expanded(
-              child: Text(template.name, style: AppTypography.headlineLarge),
-            ),
-            _DetailMetric(
-              icon: Icons.star_rounded,
-              label: template.rating.toStringAsFixed(1),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
         Text(
-          template.description,
-          style: AppTypography.bodyMedium.copyWith(
+          '20 per page',
+          style: AppTypography.bodySmall.copyWith(
             color: AppColors.textSecondary,
           ),
         ),
-        const SizedBox(height: AppSpacing.lg),
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
-          children: [
-            AppChip(label: templateCategoryLabel(template.category)),
-            AppChip(label: premium ? 'Premium' : 'Free'),
-            AppChip(label: template.difficulty.name),
-            AppChip(label: '${template.structure.duration}s'),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        _BlueprintSection(template: template),
-        const SizedBox(height: AppSpacing.lg),
-        if (premium)
-          _PremiumNotice(onUpgrade: () => context.go(AppRoutes.pricing))
-        else
-          _ApplyTemplateButton(template: template),
       ],
     );
   }
 }
 
 class _TemplateGrid extends StatelessWidget {
-  const _TemplateGrid({required this.templates});
+  const _TemplateGrid({
+    required this.page,
+    required this.onOpen,
+    required this.onPreview,
+    this.onNextPage,
+  });
 
-  final List<Template> templates;
+  final TemplatePage page;
+  final ValueChanged<Template> onOpen;
+  final ValueChanged<Template> onPreview;
+  final VoidCallback? onNextPage;
 
   @override
   Widget build(BuildContext context) {
-    if (templates.isEmpty) {
+    if (page.items.isEmpty) {
       return const SliverFillRemaining(
         hasScrollBody: false,
         child: EmptyState(
           title: 'Template tidak ditemukan',
-          message: 'Coba kata kunci atau filter lain.',
+          message: 'Coba kategori atau kata kunci lain.',
           icon: Icons.search_off_rounded,
         ),
       );
@@ -268,25 +333,38 @@ class _TemplateGrid extends StatelessWidget {
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      sliver: SliverGrid(
-        key: const Key('template-library-grid'),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.58,
-          crossAxisSpacing: AppSpacing.md,
-          mainAxisSpacing: AppSpacing.md,
-        ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final template = templates[index];
-            return TemplateMarketplaceCard(
-              template: template,
-              onTap: () =>
-                  context.go(AppRoutes.templateDetailPath(template.id)),
-            );
-          },
-          childCount: templates.length,
-        ),
+      sliver: SliverList(
+        delegate: SliverChildListDelegate.fixed([
+          GridView.builder(
+            key: const Key('template-library-grid'),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 9 / 16,
+              crossAxisSpacing: AppSpacing.md,
+              mainAxisSpacing: AppSpacing.md,
+            ),
+            itemBuilder: (context, index) {
+              final template = page.items[index];
+              return TemplateCard(
+                template: template,
+                onTap: () => onOpen(template),
+                onLongPress: () => onPreview(template),
+              );
+            },
+            itemCount: page.items.length,
+          ),
+          if (onNextPage != null) ...[
+            const SizedBox(height: AppSpacing.lg),
+            OutlinedButton.icon(
+              key: const Key('template-next-page'),
+              onPressed: onNextPage,
+              icon: const Icon(Icons.expand_more_rounded),
+              label: const Text('Load next 20'),
+            ),
+          ],
+        ]),
       ),
     );
   }
@@ -303,7 +381,7 @@ class _TemplateLoadingGrid extends StatelessWidget {
         key: const Key('template-loading-grid'),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.58,
+          childAspectRatio: 9 / 16,
           crossAxisSpacing: AppSpacing.md,
           mainAxisSpacing: AppSpacing.md,
         ),
@@ -319,346 +397,56 @@ class _TemplateLoadingGrid extends StatelessWidget {
   }
 }
 
-class _CategoryFilter extends StatelessWidget {
-  const _CategoryFilter({
-    required this.categories,
-    required this.selectedCategory,
-    required this.onSelected,
+class _TemplatePreviewSheet extends StatelessWidget {
+  const _TemplatePreviewSheet({
+    required this.template,
+    required this.onUse,
   });
 
-  final List<String> categories;
-  final String selectedCategory;
-  final ValueChanged<String> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final items = [allTemplateCategories, ...categories];
-
-    return SizedBox(
-      height: 42,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (context, index) {
-          final category = items[index];
-          return AppChip(
-            key: Key('template-category-$category'),
-            label: templateCategoryLabel(category),
-            variant: AppChipVariant.selectable,
-            selected: selectedCategory == category,
-            onSelected: (_) => onSelected(category),
-          );
-        },
-        separatorBuilder: (context, index) =>
-            const SizedBox(width: AppSpacing.sm),
-        itemCount: items.length,
-      ),
-    );
-  }
-}
-
-class _FilterRow extends StatelessWidget {
-  const _FilterRow({
-    required this.filter,
-    required this.onTierChanged,
-    required this.onSortChanged,
-    this.onClear,
-  });
-
-  final TemplateLibraryFilterState filter;
-  final ValueChanged<TemplateTierFilter> onTierChanged;
-  final ValueChanged<TemplateSortOrder> onSortChanged;
-  final VoidCallback? onClear;
+  final Template template;
+  final VoidCallback onUse;
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      key: const Key('template-preview-sheet'),
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
-          children: [
-            for (final tier in TemplateTierFilter.values)
-              AppChip(
-                key: Key('template-tier-${tier.name}'),
-                label: tier.label,
-                variant: AppChipVariant.selectable,
-                selected: filter.tier == tier,
-                onSelected: (_) => onTierChanged(tier),
+        AspectRatio(
+          aspectRatio: 9 / 16,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppColors.surface1,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              border: Border.all(color: AppColors.surface3),
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.play_circle_fill_rounded,
+                color: AppColors.gold,
+                size: 62,
               ),
-          ],
+            ),
+          ),
         ),
-        const SizedBox(height: AppSpacing.md),
-        Row(
-          children: [
-            Expanded(
-              child: DropdownButtonFormField<TemplateSortOrder>(
-                key: const Key('template-sort-dropdown'),
-                initialValue: filter.sort,
-                decoration: const InputDecoration(
-                  labelText: 'Sort',
-                  prefixIcon: Icon(Icons.sort_rounded),
-                ),
-                items: [
-                  for (final sort in TemplateSortOrder.values)
-                    DropdownMenuItem(
-                      value: sort,
-                      child: Text(sort.label),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    onSortChanged(value);
-                  }
-                },
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            TextButton(
-              key: const Key('template-clear-filter'),
-              onPressed: onClear,
-              child: const Text('Reset'),
-            ),
-          ],
+        const SizedBox(height: AppSpacing.lg),
+        Text(template.name, style: AppTypography.headlineSmall),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          template.description,
+          style: AppTypography.bodySmall.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        ElevatedButton.icon(
+          key: const Key('template-preview-use-button'),
+          onPressed: onUse,
+          icon: const Icon(Icons.auto_awesome_rounded),
+          label: const Text('Use template'),
         ),
       ],
     );
   }
-}
-
-class _FeaturedTemplateBanner extends StatelessWidget {
-  const _FeaturedTemplateBanner({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.surface1,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.gold),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.gold.withValues(alpha: 0.18),
-            blurRadius: 22,
-          ),
-        ],
-      ),
-      child: InkWell(
-        key: const Key('template-featured-podcast'),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.graphic_eq_rounded,
-                color: AppColors.gold,
-                size: 34,
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Signature Premium', style: AppTypography.labelMedium),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'Podcast 2-Speaker Split',
-                      style: AppTypography.headlineSmall,
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'Blueprint unik untuk klip podcast dua host.',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.chevron_right_rounded, color: AppColors.gold),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _BlueprintSection extends StatelessWidget {
-  const _BlueprintSection({required this.template});
-
-  final Template template;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.surface1,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.surface3),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Blueprint', style: AppTypography.headlineSmall),
-            const SizedBox(height: AppSpacing.md),
-            _BlueprintLine(
-              label: 'Hooks',
-              value: template.structure.hooks.join(', '),
-            ),
-            _BlueprintLine(
-              label: 'Segments',
-              value: template.structure.segments.join(' -> '),
-            ),
-            _BlueprintLine(
-              label: 'Transitions',
-              value: template.structure.transitions.join(', '),
-            ),
-            _BlueprintLine(
-              label: 'Music',
-              value: template.structure.music.join(', '),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _BlueprintLine extends StatelessWidget {
-  const _BlueprintLine({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 92,
-            child: Text(
-              label,
-              style: AppTypography.labelMedium.copyWith(
-                color: AppColors.gold,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value.isEmpty ? '-' : value,
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PremiumNotice extends StatelessWidget {
-  const _PremiumNotice({required this.onUpgrade});
-
-  final VoidCallback onUpgrade;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.goldGlow,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.gold),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Premium template', style: AppTypography.headlineSmall),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Upgrade untuk memakai signature template dan builder personal.',
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            ElevatedButton(
-              key: const Key('template-upgrade-button'),
-              onPressed: onUpgrade,
-              child: const Text('Upgrade'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ApplyTemplateButton extends StatelessWidget {
-  const _ApplyTemplateButton({required this.template});
-
-  final Template template;
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      key: const Key('template-apply-button'),
-      onPressed: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${template.name} diterapkan')),
-        );
-        context.go(AppRoutes.create);
-      },
-      icon: const Icon(Icons.auto_awesome_rounded),
-      label: const Text('Apply Template'),
-    );
-  }
-}
-
-class _DetailMetric extends StatelessWidget {
-  const _DetailMetric({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: AppColors.gold, size: 18),
-        const SizedBox(width: AppSpacing.xs),
-        Text(label, style: AppTypography.labelLarge),
-      ],
-    );
-  }
-}
-
-String templateCategoryLabel(String value) {
-  if (value == allTemplateCategories) {
-    return 'All';
-  }
-  return value
-      .split(RegExp(r'[_-]'))
-      .where((part) => part.isNotEmpty)
-      .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
-      .join(' ');
 }

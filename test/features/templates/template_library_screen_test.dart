@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shorts_ai/core/theme/app_theme.dart';
 import 'package:shorts_ai/core/theme/app_typography.dart';
+import 'package:shorts_ai/features/auth/models/user.dart';
+import 'package:shorts_ai/features/auth/providers/current_user_provider.dart';
+import 'package:shorts_ai/features/templates/template_detail_screen.dart';
 import 'package:shorts_ai/features/templates/template_library_screen.dart';
 import 'package:shorts_ai/shared/models/template.dart';
 import 'package:shorts_ai/shared/repositories/providers.dart';
@@ -15,12 +18,12 @@ void main() {
     AppTypography.setUseGoogleFontsForTest(false);
   });
 
-  testWidgets('renders template library and filters search results', (
+  testWidgets('renders template grid and filters by category/search', (
     tester,
   ) async {
     await tester.pumpWidget(
       _TemplateHarness(
-        templates: _templates,
+        templates: _generatedTemplates,
         child: const TemplateLibraryScreen(),
       ),
     );
@@ -28,43 +31,58 @@ void main() {
 
     expect(find.byKey(const Key('template-library-screen')), findsOneWidget);
     expect(find.byKey(const Key('template-library-grid')), findsOneWidget);
-    expect(find.text('Tutorial How-To'), findsOneWidget);
-    expect(find.text('Podcast 2-Speaker Split'), findsWidgets);
+    expect(find.byKey(const Key('template-card-template_9')), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField).first, 'tutorial');
+    await tester.enterText(find.byType(TextField).first, 'Template 24');
     await tester.pumpAndSettle();
 
-    expect(find.text('Tutorial How-To'), findsOneWidget);
-    expect(
-        find.byKey(const Key('template-library-card-podcast')), findsNothing);
+    expect(find.byKey(const Key('template-card-template_24')), findsOneWidget);
+    expect(find.byKey(const Key('template-card-template_9')), findsNothing);
 
-    await tester.tap(find.byKey(const Key('template-clear-filter')));
+    await tester.enterText(find.byType(TextField).first, '');
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('template-tier-premium')));
+    await tester.tap(find.byKey(const Key('template-category-tech')));
     await tester.pumpAndSettle();
 
-    expect(
-        find.byKey(const Key('template-library-card-podcast')), findsOneWidget);
-    expect(
-        find.byKey(const Key('template-library-card-tutorial')), findsNothing);
+    expect(find.byKey(const Key('template-card-template_9')), findsOneWidget);
+    expect(find.byKey(const Key('template-card-template_24')), findsNothing);
   });
 
-  testWidgets('renders premium template detail with upgrade CTA',
+  testWidgets('free user sees upgrade CTA for premium template',
       (tester) async {
     await tester.pumpWidget(
       _TemplateHarness(
         templates: _templates,
+        user: _freeUser,
         child: const TemplateDetailScreen(templateId: 'podcast'),
       ),
     );
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('template-detail-screen')), findsOneWidget);
-    expect(find.text('Podcast 2-Speaker Split'), findsWidgets);
-    await tester.drag(find.byType(ListView), const Offset(0, -520));
+    expect(find.byKey(const Key('template-video-preview')), findsOneWidget);
+    await tester.drag(find.byType(ListView), const Offset(0, -700));
     await tester.pumpAndSettle();
-    expect(find.text('Blueprint'), findsOneWidget);
+    expect(find.text('Podcast 2-Speaker Split'), findsWidgets);
     expect(find.byKey(const Key('template-upgrade-button')), findsOneWidget);
+    expect(find.byKey(const Key('template-use-button')), findsNothing);
+  });
+
+  testWidgets('premium user can use free template from detail', (tester) async {
+    await tester.pumpWidget(
+      _TemplateHarness(
+        templates: _templates,
+        user: _premiumUser,
+        child: const TemplateDetailScreen(templateId: 'tutorial'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('template-video-preview')), findsOneWidget);
+    await tester.drag(find.byType(ListView), const Offset(0, -700));
+    await tester.pumpAndSettle();
+    expect(find.text('Structure preview'), findsOneWidget);
+    expect(find.byKey(const Key('template-use-button')), findsOneWidget);
   });
 }
 
@@ -72,10 +90,12 @@ class _TemplateHarness extends StatelessWidget {
   const _TemplateHarness({
     required this.child,
     required this.templates,
+    this.user,
   });
 
   final Widget child;
   final List<Template> templates;
+  final User? user;
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +104,7 @@ class _TemplateHarness extends StatelessWidget {
         templateRepositoryProvider.overrideWithValue(
           _FakeTemplateRepository(templates),
         ),
+        if (user != null) currentUserProvider.overrideWithValue(user),
       ],
       child: MaterialApp(
         theme: darkTheme(),
@@ -117,6 +138,33 @@ class _FakeTemplateRepository implements TemplateRepository {
   Stream<List<Template>> watchAll() => Stream.value(templates);
 }
 
+final _freeUser = User(
+  id: 'free-user',
+  email: 'free@autoshort.id',
+  tier: SubscriptionTier.free,
+  createdAt: DateTime(2026),
+);
+
+final _premiumUser = User(
+  id: 'premium-user',
+  email: 'premium@autoshort.id',
+  tier: SubscriptionTier.premium,
+  createdAt: DateTime(2026),
+);
+
+final _generatedTemplates = List<Template>.generate(
+  25,
+  (index) => Template(
+    id: 'template_$index',
+    name: 'Template $index',
+    description: 'Generated template $index',
+    category: index.isEven ? 'education' : 'tech',
+    timesUsed: index == 0 ? 1200 : index,
+    rating: 4 + (index % 10) / 10,
+    structure: const TemplateStructure(duration: 30),
+  ),
+);
+
 const _templates = <Template>[
   Template(
     id: 'tutorial',
@@ -138,9 +186,9 @@ const _templates = <Template>[
     id: 'podcast',
     name: 'Podcast 2-Speaker Split',
     description: 'Split-frame podcast template',
-    category: 'podcast',
+    category: 'podcast_split',
     tier: TemplateTier.premium,
-    timesUsed: 900,
+    timesUsed: 1200,
     rating: 4.9,
     structure: TemplateStructure(
       duration: 75,

@@ -16,6 +16,7 @@ import '../features/onboarding/onboarding_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/subtitle/subtitle_studio_screen.dart';
+import '../features/templates/template_detail_screen.dart';
 import '../features/templates/template_library_screen.dart';
 import '../features/thumbnail/thumbnail_editor_screen.dart';
 import '../shared/widgets/_dev/component_gallery.dart';
