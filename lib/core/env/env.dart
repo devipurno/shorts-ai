@@ -42,6 +42,16 @@ class Env {
   static String? get supabaseAnonKey => _value('SUPABASE_ANON_KEY');
   static String? get supabasePublishableKey =>
       _value('SUPABASE_PUBLISHABLE_KEY');
+  static String? get supabaseClientKey =>
+      supabaseAnonKey ?? supabasePublishableKey;
+  static bool get useSupabase {
+    final explicit = _bool('USE_SUPABASE');
+    if (explicit != null) {
+      return explicit;
+    }
+    return supabaseUrl != null && supabaseClientKey != null;
+  }
+
   static String get apiBaseUrl => _value('API_BASE_URL') ?? defaultApiBaseUrl;
   static String? get openaiApiKey => _value('OPENAI_API_KEY');
   static String? get elevenLabsApiKey => _value('ELEVENLABS_API_KEY');
@@ -87,5 +97,19 @@ class Env {
       return null;
     }
     return value;
+  }
+
+  static bool? _bool(String key) {
+    final value = _value(key)?.toLowerCase();
+    if (value == null) {
+      return null;
+    }
+    if (value == 'true' || value == '1' || value == 'yes') {
+      return true;
+    }
+    if (value == 'false' || value == '0' || value == 'no') {
+      return false;
+    }
+    return null;
   }
 }

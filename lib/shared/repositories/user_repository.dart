@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import '../models/user.dart';
 
 abstract class UserRepository {
@@ -6,6 +8,8 @@ abstract class UserRepository {
   Future<User?> getById(String id);
 
   Future<User> updateProfile(User user);
+
+  Future<String> uploadAvatar(File file, {required String userId});
 
   Stream<User?> watchProfile(String userId);
 }

@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/env/env.dart';
+import '../services/supabase_service.dart';
 import 'analytics_repository.dart';
 import 'auth_repository.dart';
 import 'brand_kit_repository.dart';
@@ -21,15 +23,25 @@ import 'referral_repository.dart';
 import 'script_repository.dart';
 import 'subtitle_repository.dart';
 import 'subscription_repository.dart';
+import 'supabase/supabase_auth_repository.dart';
+import 'supabase/supabase_user_repository.dart';
 import 'template_repository.dart';
 import 'thumbnail_repository.dart';
 import 'user_repository.dart';
 
+bool get _shouldUseSupabase => Env.useSupabase && SupabaseService.isInitialized;
+
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  if (_shouldUseSupabase) {
+    return SupabaseAuthRepository();
+  }
   return MockAuthRepository();
 });
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {
+  if (_shouldUseSupabase) {
+    return SupabaseUserRepository();
+  }
   return MockUserRepository();
 });
 

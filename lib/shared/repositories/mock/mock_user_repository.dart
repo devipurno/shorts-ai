@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:faker/faker.dart';
 
@@ -40,6 +41,12 @@ class MockUserRepository implements UserRepository {
     }
     _emit();
     return updated;
+  }
+
+  @override
+  Future<String> uploadAvatar(File file, {required String userId}) async {
+    await _runtime.simulateNetwork();
+    return 'https://mock.autoshort.local/avatars/$userId/${file.uri.pathSegments.last}';
   }
 
   @override

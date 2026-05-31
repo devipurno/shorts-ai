@@ -70,6 +70,54 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> sendOtp(String email) async {
+    await _runtime.simulateNetwork();
+    if (email.trim().isEmpty || email.toLowerCase().contains('fail')) {
+      throw const AuthException(
+        'Unable to send mock OTP.',
+        code: 'mock_otp_failed',
+      );
+    }
+  }
+
+  @override
+  Future<User?> verifyOtp({
+    required String email,
+    required String token,
+    bool recovery = false,
+  }) async {
+    await _runtime.simulateNetwork();
+    if (token.length != 6 || token == '000000') {
+      throw const AuthException(
+        'Invalid mock OTP.',
+        code: 'mock_invalid_otp',
+      );
+    }
+    if (recovery) {
+      return null;
+    }
+    _currentUser = _buildUser(email: email, name: email.split('@').first);
+    _controller.add(_currentUser);
+    return _currentUser;
+  }
+
+  @override
+  Future<User> resetPassword(String newPassword) async {
+    await _runtime.simulateNetwork();
+    if (newPassword.length < 8) {
+      throw const AuthException(
+        'Unable to reset mock password.',
+        code: 'mock_reset_failed',
+      );
+    }
+    final user = _currentUser ??
+        _buildUser(email: 'reset@autoshort.id', name: 'Reset User');
+    _currentUser = user;
+    _controller.add(_currentUser);
+    return user;
+  }
+
+  @override
   Future<User?> refresh() async {
     await _runtime.simulateNetwork();
     _controller.add(_currentUser);

@@ -18,5 +18,15 @@ abstract class AuthRepository {
 
   Future<User?> refresh();
 
+  Future<void> sendOtp(String email);
+
+  Future<User?> verifyOtp({
+    required String email,
+    required String token,
+    bool recovery,
+  });
+
+  Future<User> resetPassword(String newPassword);
+
   Stream<User?> watchAuthState();
 }

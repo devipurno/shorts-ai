@@ -6,12 +6,23 @@ import 'core/constants/app_constants.dart';
 import 'core/env/env.dart';
 import 'core/utils/logger.dart';
 import 'core/utils/provider_observer.dart';
+import 'shared/services/supabase_service.dart';
 
 export 'app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Env.init();
+  try {
+    await SupabaseService.initializeFromEnv();
+  } catch (error, stackTrace) {
+    AppLogger.e(
+      'Supabase initialization failed; repository providers may fall back to mocks.',
+      tag: 'Supabase',
+      error: error,
+      stackTrace: stackTrace,
+    );
+  }
   await AppConstants.init();
   AppLogger.i('${AppConstants.APP_NAME} bootstrapped', tag: 'Bootstrap');
   runApp(

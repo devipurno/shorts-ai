@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -119,6 +120,11 @@ class _RecordingUserRepository implements UserRepository {
     updatedProfiles.add(user);
     _controller.add(user);
     return user;
+  }
+
+  @override
+  Future<String> uploadAvatar(File file, {required String userId}) async {
+    return 'mock://avatar/$userId';
   }
 
   @override

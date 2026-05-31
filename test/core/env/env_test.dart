@@ -24,8 +24,23 @@ void main() {
 
     expect(Env.supabaseUrl, 'https://example.supabase.co');
     expect(Env.supabaseAnonKey, 'anon-key');
+    expect(Env.supabaseClientKey, 'anon-key');
+    expect(Env.useSupabase, isTrue);
     expect(Env.apiBaseUrl, 'https://api.example.com');
     expect(Env.openaiApiKey, 'openai-key');
+  });
+
+  test('USE_SUPABASE can force mock repositories', () {
+    Env.loadFromStringForTest(
+      [
+        'USE_SUPABASE=false',
+        'SUPABASE_URL=https://example.supabase.co',
+        'SUPABASE_ANON_KEY=anon-key',
+      ].join('\n'),
+      failFast: false,
+    );
+
+    expect(Env.useSupabase, isFalse);
   });
 
   test('fails fast with a clear missing variable message', () {
