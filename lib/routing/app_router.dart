@@ -10,6 +10,7 @@ import '../features/auth/screens/otp_verify_screen.dart';
 import '../features/auth/screens/reset_password_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
 import '../features/editor/mini_editor_screen.dart';
+import '../features/hook_generator/hook_generator_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/library/library_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
@@ -139,8 +140,7 @@ GoRouter createAppRouter({
       ),
       GoRoute(
         path: AppRoutes.hookGenerator,
-        builder: (context, state) =>
-            const PlaceholderScreen(name: 'Hook Generator'),
+        builder: (context, state) => const HookGeneratorScreen(),
       ),
       GoRoute(
         path: AppRoutes.brandKit,

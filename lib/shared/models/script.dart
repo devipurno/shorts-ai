@@ -4,7 +4,7 @@ part 'script.freezed.dart';
 part 'script.g.dart';
 
 @JsonEnum(fieldRename: FieldRename.snake)
-enum HookStyle { question, statement, shock, story }
+enum HookStyle { question, statement, shock, story, curiosity }
 
 @freezed
 abstract class Script with _$Script {

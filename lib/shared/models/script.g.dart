@@ -54,4 +54,5 @@ const _$HookStyleEnumMap = {
   HookStyle.statement: 'statement',
   HookStyle.shock: 'shock',
   HookStyle.story: 'story',
+  HookStyle.curiosity: 'curiosity',
 };
