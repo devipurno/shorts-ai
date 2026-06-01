@@ -30,6 +30,7 @@ void main() {
     expect(Env.apiBaseUrl, 'https://api.example.com');
     expect(Env.useApiRepositories, isTrue);
     expect(Env.openaiApiKey, 'openai-key');
+    expect(Env.aiProxyBaseUrl, Env.defaultAiProxyBaseUrl);
   });
 
   test('USE_SUPABASE can force mock repositories', () {
@@ -56,6 +57,8 @@ void main() {
 
     expect(Env.useMockRepositories, isTrue);
     expect(Env.useApiRepositories, isFalse);
+    expect(Env.aiProxyBaseUrlOrNull, isNull);
+    expect(Env.aiProxyBaseUrl, Env.defaultAiProxyBaseUrl);
   });
 
   test('fails fast with a clear missing variable message', () {
@@ -75,11 +78,14 @@ void main() {
     );
   });
 
-  test('uses default API base URL when optional env is absent', () {
+  test('uses default API and AI proxy base URLs when optional env is absent',
+      () {
     Env.loadFromStringForTest('', failFast: false);
 
     expect(Env.apiBaseUrlOrNull, isNull);
     expect(Env.apiBaseUrl, Env.defaultApiBaseUrl);
     expect(Env.useApiRepositories, isFalse);
+    expect(Env.aiProxyBaseUrlOrNull, isNull);
+    expect(Env.aiProxyBaseUrl, Env.defaultAiProxyBaseUrl);
   });
 }

@@ -1,0 +1,36 @@
+﻿name = "shorts-ai-ai-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-06-01"
+workers_dev = true
+
+[vars]
+DAILY_RATE_LIMIT = "50"
+
+[[kv_namespaces]]
+binding = "AI_RATE_LIMIT_KV"
+id = "replace-with-production-kv-namespace-id"
+preview_id = "replace-with-preview-kv-namespace-id"
+
+[env.preview]
+name = "shorts-ai-ai-proxy-preview"
+workers_dev = true
+
+[env.preview.vars]
+DAILY_RATE_LIMIT = "50"
+
+[[env.preview.kv_namespaces]]
+binding = "AI_RATE_LIMIT_KV"
+id = "replace-with-preview-kv-namespace-id"
+preview_id = "replace-with-preview-kv-namespace-id"
+
+[env.production]
+name = "shorts-ai-ai-proxy"
+workers_dev = true
+
+[env.production.vars]
+DAILY_RATE_LIMIT = "50"
+
+[[env.production.kv_namespaces]]
+binding = "AI_RATE_LIMIT_KV"
+id = "replace-with-production-kv-namespace-id"
+preview_id = "replace-with-preview-kv-namespace-id"

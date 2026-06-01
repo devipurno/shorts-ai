@@ -50,8 +50,8 @@ infra/
 packages/
 tests/
 playwright.config.ts
-package.json
-package-lock.json
+/package.json
+/package-lock.json
 
 # IDE & OS
 .vscode/
@@ -68,3 +68,7 @@ Thumbs.db
 # Build artifacts
 build/
 .dart_tool/
+
+# Cloudflare local worker state
+workers/ai-proxy/.wrangler/
+workers/ai-proxy/.dev.vars

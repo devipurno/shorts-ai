@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
+import 'package:shorts_ai/core/ai/ai_proxy_client.dart';
 import 'package:shorts_ai/core/ai/ai_router.dart';
 import 'package:shorts_ai/core/ai/cache/ai_cache.dart';
 import 'package:shorts_ai/core/ai/models/ai_request.dart';
@@ -11,6 +12,7 @@ import 'package:shorts_ai/core/ai/providers/edge_tts_provider.dart';
 import 'package:shorts_ai/core/ai/providers/gemini_provider.dart';
 import 'package:shorts_ai/core/ai/providers/groq_provider.dart';
 import 'package:shorts_ai/core/ai/providers/pollinations_provider.dart';
+import 'package:shorts_ai/core/ai/providers/provider_utils.dart';
 import 'package:shorts_ai/core/ai/quota_tracker.dart';
 
 void main() {
@@ -121,6 +123,63 @@ void main() {
     expect(calls, 1);
   });
 
+  test('AIRouter can use Cloudflare AI proxy with Supabase bearer auth',
+      () async {
+    final dio = Dio();
+    final adapter = DioAdapter(
+        dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
+
+    adapter.onPost(
+      'https://proxy.example.com/ai/gemini/generate',
+      (server) => server.reply(200, {
+        'text': 'Proxy text',
+        'provider': 'gemini',
+        'inputTokens': 3,
+        'outputTokens': 5,
+      }),
+      headers: {'Authorization': 'Bearer supabase-token'},
+    );
+
+    final router = _router(
+      dio: dio,
+      quotaTracker: QuotaTracker(),
+      cache: AICache(),
+      proxy: AIProxyClient(
+        dio: dio,
+        baseUrl: 'https://proxy.example.com',
+        accessTokenProvider: () async => 'supabase-token',
+      ),
+    );
+
+    final result = await router.generateText(const LLMRequest(prompt: 'Topik'));
+
+    expect(result.getOrThrow().provider, 'gemini');
+    expect(result.getOrThrow().text, 'Proxy text');
+  });
+
+  test('AIProxyClient maps 429 into quotaExceeded with friendly message',
+      () async {
+    final dio = Dio();
+    final adapter = DioAdapter(
+        dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
+    adapter.onPost(
+      'https://proxy.example.com/ai/gemini/generate',
+      (server) => server.reply(429, {
+        'error': {'code': 'rate_limit_exceeded'}
+      }),
+    );
+
+    final client = AIProxyClient(
+      dio: dio,
+      baseUrl: 'https://proxy.example.com',
+      accessTokenProvider: () async => 'supabase-token',
+    );
+
+    final result = await client.generateText(const LLMRequest(prompt: 'Topik'));
+
+    expect(result.errorOrNull, isA<QuotaExceeded>());
+    expect((result.errorOrNull as QuotaExceeded).message, contains('Limit AI'));
+  });
   test('QuotaTracker resets daily using Asia/Bangkok date boundary', () async {
     var now = DateTime.utc(2026, 6, 1, 16, 30);
     final tracker = QuotaTracker(
@@ -141,6 +200,7 @@ AIRouter _router({
   required Dio dio,
   required QuotaTracker quotaTracker,
   required AICache cache,
+  AIProxyClient? proxy,
 }) {
   return AIRouter(
     gemini: GeminiProvider(dio: dio, apiKey: 'gemini-key'),
@@ -150,6 +210,7 @@ AIRouter _router({
     pollinations: PollinationsProvider(dio: dio),
     quotaTracker: quotaTracker,
     cache: cache,
+    proxy: proxy,
   );
 }
 

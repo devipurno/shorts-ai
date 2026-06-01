@@ -312,4 +312,4 @@ final class AiRouterProvider extends $FunctionalProvider<AsyncValue<AIRouter>,
   }
 }
 
-String _$aiRouterHash() => r'2fa7e8da3ac512143fdb73c7633860546049d393';
+String _$aiRouterHash() => r'0efa04853d5cb56825affb4b80fe665c9bbe8cd9';

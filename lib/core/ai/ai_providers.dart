@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../shared/services/providers.dart';
+import 'ai_proxy_client.dart';
 import 'ai_router.dart';
 import 'cache/ai_cache.dart';
 import 'cache/upstash_client.dart';
@@ -49,5 +50,6 @@ Future<AIRouter> aiRouter(Ref ref) async {
     pollinations: ref.watch(pollinationsImageProvider),
     quotaTracker: await ref.watch(quotaTrackerProvider.future),
     cache: await ref.watch(aiCacheProvider.future),
+    proxy: AIProxyClient(),
   );
 }

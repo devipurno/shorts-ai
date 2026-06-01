@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
+import 'ai_proxy_client.dart';
 import 'ai_service.dart';
 import 'cache/ai_cache.dart';
 import 'models/ai_request.dart';
@@ -32,13 +33,15 @@ class AIRouter implements AIService {
     required PollinationsProvider pollinations,
     required QuotaTracker quotaTracker,
     required AICache cache,
+    AIProxyClient? proxy,
   })  : _gemini = gemini,
         _groq = groq,
         _deepSeek = deepSeek,
         _edgeTts = edgeTts,
         _pollinations = pollinations,
         _quota = quotaTracker,
-        _cache = cache;
+        _cache = cache,
+        _proxy = proxy;
 
   final GeminiProvider _gemini;
   final GroqProvider _groq;
@@ -47,6 +50,7 @@ class AIRouter implements AIService {
   final PollinationsProvider _pollinations;
   final QuotaTracker _quota;
   final AICache _cache;
+  final AIProxyClient? _proxy;
 
   @override
   Future<AIResult<LLMResponse>> generateText(LLMRequest request) async {
@@ -54,6 +58,16 @@ class AIRouter implements AIService {
     final cached = await _cache.get(cacheKey);
     if (cached != null) {
       return Result.success(LLMResponse(text: cached, provider: 'cache'));
+    }
+
+    final proxy = _proxy;
+    if (proxy != null) {
+      final result = await proxy.generateText(request);
+      if (result.isSuccess) {
+        final value = result.valueOrNull!;
+        await _cache.set(cacheKey, value.text, ttl: const Duration(hours: 24));
+      }
+      return result;
     }
 
     final providers = <LLMProvider>[_gemini, _groq, _deepSeek];

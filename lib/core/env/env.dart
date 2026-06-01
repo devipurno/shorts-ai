@@ -6,6 +6,8 @@ class Env {
 
   static const String defaultEnvFile = '.env.local';
   static const String defaultApiBaseUrl = 'http://localhost:8000';
+  static const String defaultAiProxyBaseUrl =
+      'https://ai-proxy.autoshort.workers.dev';
 
   static Future<void> init({
     String fileName = defaultEnvFile,
@@ -62,6 +64,10 @@ class Env {
     }
     return apiBaseUrlOrNull != null && !useMockRepositories;
   }
+
+  static String? get aiProxyBaseUrlOrNull => _value('AI_PROXY_BASE_URL');
+  static String get aiProxyBaseUrl =>
+      aiProxyBaseUrlOrNull ?? defaultAiProxyBaseUrl;
 
   static String? get openaiApiKey => _value('OPENAI_API_KEY');
   static String? get elevenLabsApiKey => _value('ELEVENLABS_API_KEY');

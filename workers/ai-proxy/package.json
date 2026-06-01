@@ -1,0 +1,21 @@
+﻿{
+  "name": "@shorts-ai/ai-proxy",
+  "version": "0.2.0-alpha.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:preview": "wrangler deploy --env preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^4.12.23",
+    "jose": "^6.2.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260601.1",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.96.0"
+  }
+}
