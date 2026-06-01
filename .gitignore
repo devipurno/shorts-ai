@@ -35,3 +35,4 @@ android/key.properties
 android/upload-keystore.jks
 *.jks
 doc/
+android/keystore-base64.txt
