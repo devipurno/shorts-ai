@@ -18,7 +18,7 @@ class AppConstants {
   static const int PREMIUM_PRICE_IDR = 120000;
   static const int LIFETIME_PRICE_IDR = 1500000;
 
-  static const String PHASE_ZERO_ORG = 'com.dayscent.shortsai';
+  static const String PHASE_ZERO_ORG = 'com.autoshort.shortsai';
   static const String PHASE_ONE_FIVE_ORG = 'com.autoshort.app';
   static const String HOT_STORAGE_PROVIDER = 'Cloudflare R2';
   static const String COLD_STORAGE_PROVIDER = 'Backblaze B2';
