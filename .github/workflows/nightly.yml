@@ -1,4 +1,4 @@
-﻿name: Nightly - Integration Tests + Golden Regen Check
+name: Nightly - Integration Tests + Golden Regen Check
 
 on:
   schedule:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 env:
-  FLUTTER_VERSION: "3.32.0"
+  FLUTTER_VERSION: "3.41.9"
 
 jobs:
   integration_test:
