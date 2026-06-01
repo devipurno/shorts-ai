@@ -29,6 +29,9 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  # TODO: Add ffmpeg replacement when implementing video editing in v0.2.0+
+  # Options: ffmpeg_kit_flutter_new, ffmpeg_kit_extended_flutter, easy_video_editor
+  # Or move heavy processing to server-side (Cloudflare + Remotion)
   flutter:
     sdk: flutter
 
@@ -69,7 +72,6 @@ dependencies:
   freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0
   faker: ^2.2.0
-  ffmpeg_kit_flutter_min: ^6.0.3
   audioplayers: ^6.7.0
   screenshot: ^3.0.0
   flutter_colorpicker: ^1.1.0
