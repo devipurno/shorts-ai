@@ -24,9 +24,8 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = user.name?.trim().isNotEmpty == true
-        ? user.name!.trim()
-        : user.email.split('@').first;
+    final name =
+        user.name?.trim().isNotEmpty == true ? user.name!.trim() : 'Devi';
 
     return SliverToBoxAdapter(
       child: Padding(

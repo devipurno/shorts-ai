@@ -91,19 +91,7 @@ class GreetingHeader extends StatelessWidget {
     );
   }
 
-  static String greetingFor(DateTime time) {
-    final hour = time.hour;
-    if (hour <= 11) {
-      return 'Selamat pagi';
-    }
-    if (hour <= 15) {
-      return 'Selamat siang';
-    }
-    if (hour <= 18) {
-      return 'Selamat sore';
-    }
-    return 'Selamat malam';
-  }
+  static String greetingFor(DateTime time) => getGreeting(time);
 
   String _initials(String value) {
     final parts = value
@@ -118,4 +106,12 @@ class GreetingHeader extends StatelessWidget {
     }
     return '${parts.first.characters.first}${parts.last.characters.first}';
   }
+}
+
+String getGreeting(DateTime now) {
+  final hour = now.hour;
+  if (hour >= 5 && hour < 11) return 'Selamat pagi';
+  if (hour >= 11 && hour < 15) return 'Selamat siang';
+  if (hour >= 15 && hour < 19) return 'Selamat sore';
+  return 'Selamat malam';
 }

@@ -39,7 +39,7 @@ class MockAuthRepository implements AuthRepository {
       );
     }
 
-    _currentUser = _buildUser(email: email, name: email.split('@').first);
+    _currentUser = _buildUser(email: email, name: 'Devi');
     _controller.add(_currentUser);
     return _currentUser!;
   }
@@ -97,7 +97,7 @@ class MockAuthRepository implements AuthRepository {
     if (recovery) {
       return null;
     }
-    _currentUser = _buildUser(email: email, name: email.split('@').first);
+    _currentUser = _buildUser(email: email, name: 'Devi');
     _controller.add(_currentUser);
     return _currentUser;
   }

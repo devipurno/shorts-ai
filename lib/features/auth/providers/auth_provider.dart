@@ -128,7 +128,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       User(
         id: _mockUserId(email),
         email: email,
-        name: email.split('@').first,
+        name: 'Devi',
         tier: SubscriptionTier.free,
         createdAt: DateTime.now(),
       ),
@@ -227,7 +227,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         User(
           id: _mockUserId(normalizedEmail),
           email: normalizedEmail,
-          name: normalizedEmail.split('@').first,
+          name: 'Devi',
           tier: SubscriptionTier.free,
           createdAt: DateTime.now(),
         ),
