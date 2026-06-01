@@ -1,0 +1,17 @@
+project_id = "ebayydlldqdnvrhgzxfe"
+
+[api]
+enabled = true
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+
+[auth]
+enabled = true
+site_url = "http://localhost:8080"
+additional_redirect_urls = ["http://localhost:8080", "http://localhost:4000"]
+
+[db]
+major_version = 15
+
+[storage]
+enabled = true
