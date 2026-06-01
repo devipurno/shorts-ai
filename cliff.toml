@@ -1,0 +1,36 @@
+﻿# git-cliff configuration for AutoShort releases.
+[changelog]
+header = "# Changelog\n\n"
+body = """
+{% if version %}## {{ version | trim_start_matches(pat='v') }} - {{ timestamp | date(format='%Y-%m-%d') }}{% else %}## Unreleased{% endif %}
+{% for group, commits in commits | group_by(attribute='group') %}
+### {{ group | upper_first }}
+{% for commit in commits %}
+- {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end='') }}]({{ commit.id }}))
+{% endfor %}
+{% endfor %}
+"""
+trim = true
+footer = ""
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+split_commits = false
+commit_parsers = [
+  { message = "^feat", group = "features" },
+  { message = "^fix", group = "fixes" },
+  { message = "^perf", group = "performance" },
+  { message = "^docs", group = "documentation" },
+  { message = "^test", group = "tests" },
+  { message = "^refactor", group = "refactoring" },
+  { message = "^chore", group = "chores" },
+  { message = "^ci", group = "ci" },
+]
+filter_commits = true
+tag_pattern = "v[0-9]*"
+skip_tags = ""
+ignore_tags = ""
+topological_order = false
+sort_commits = "oldest"
+exclude_commit_patterns = ["^Merge", "^chore\\(release\\)"]

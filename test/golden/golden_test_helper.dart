@@ -160,9 +160,12 @@ class _GoldenApp extends StatelessWidget {
         authMockDelayProvider.overrideWith((ref) => Duration.zero),
         authProvider.overrideWith((ref) => _GoldenAuthNotifier(authState)),
         projectRepositoryProvider.overrideWithValue(_GoldenProjectRepository()),
-        templateRepositoryProvider.overrideWithValue(_GoldenTemplateRepository()),
-        analyticsRepositoryProvider.overrideWithValue(_GoldenAnalyticsRepository()),
-        subscriptionRepositoryProvider.overrideWithValue(_GoldenSubscriptionRepository()),
+        templateRepositoryProvider
+            .overrideWithValue(_GoldenTemplateRepository()),
+        analyticsRepositoryProvider
+            .overrideWithValue(_GoldenAnalyticsRepository()),
+        subscriptionRepositoryProvider
+            .overrideWithValue(_GoldenSubscriptionRepository()),
         ...overrides,
       ],
       child: MaterialApp(
@@ -208,7 +211,8 @@ class _GoldenTemplateRepository implements TemplateRepository {
   Future<Template?> getById(String id) async => goldenTemplates.firstOrNull;
 
   @override
-  Future<List<Template>> getByCategory(String category) async => goldenTemplates;
+  Future<List<Template>> getByCategory(String category) async =>
+      goldenTemplates;
 
   @override
   Stream<List<Template>> watchAll() => Stream.value(goldenTemplates);
@@ -233,7 +237,8 @@ class _GoldenAnalyticsRepository implements AnalyticsRepository {
   Future<void> trackEvent(AnalyticsEvent event) async {}
 
   @override
-  Stream<List<AnalyticsEvent>> watchEvents({String? userId}) => Stream.value(const []);
+  Stream<List<AnalyticsEvent>> watchEvents({String? userId}) =>
+      Stream.value(const []);
 }
 
 class _GoldenSubscriptionRepository implements SubscriptionRepository {

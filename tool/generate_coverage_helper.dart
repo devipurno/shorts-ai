@@ -27,5 +27,6 @@ void main() {}
 ''';
 
   File('test/coverage_helper_test.dart').writeAsStringSync(output);
-  stdout.writeln('Wrote test/coverage_helper_test.dart with ${files.length} imports.');
+  stdout.writeln(
+      'Wrote test/coverage_helper_test.dart with ${files.length} imports.');
 }

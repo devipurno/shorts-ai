@@ -9,13 +9,15 @@ import 'integration_flow_helper.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('hook generator accepts a topic and exposes generate CTA', (tester) async {
+  testWidgets('hook generator accepts a topic and exposes generate CTA',
+      (tester) async {
     await pumpFlowWidget(
       tester,
       const HookGeneratorScreen(),
       authState: Authenticated(integrationUser),
     );
-    await tester.enterText(find.byType(EditableText).first, 'Tips jualan online');
+    await tester.enterText(
+        find.byType(EditableText).first, 'Tips jualan online');
     await tester.pumpAndSettle();
     expect(find.text('Generate 5 Hook'), findsOneWidget);
   });

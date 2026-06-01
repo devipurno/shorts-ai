@@ -14,9 +14,11 @@ import 'package:shorts_ai/core/ai/providers/pollinations_provider.dart';
 import 'package:shorts_ai/core/ai/quota_tracker.dart';
 
 void main() {
-  test('AIRouter routes Gemini failure to Groq and caches successful text', () async {
+  test('AIRouter routes Gemini failure to Groq and caches successful text',
+      () async {
     final dio = Dio();
-    final adapter = DioAdapter(dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
+    final adapter = DioAdapter(
+        dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
     var groqCalls = 0;
 
     adapter.onPost(
@@ -52,9 +54,11 @@ void main() {
     expect(groqCalls, 1);
   });
 
-  test('AIRouter uses DeepSeek overflow when free quotas are exhausted', () async {
+  test('AIRouter uses DeepSeek overflow when free quotas are exhausted',
+      () async {
     final dio = Dio();
-    final adapter = DioAdapter(dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
+    final adapter = DioAdapter(
+        dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
 
     adapter.onPost(
       DeepSeekProvider.endpoint,
@@ -88,7 +92,8 @@ void main() {
 
   test('AIRouter caches STT transcription by request payload', () async {
     final dio = Dio();
-    final adapter = DioAdapter(dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
+    final adapter = DioAdapter(
+        dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
     var calls = 0;
     final file = File('${Directory.systemTemp.path}/ai-router-test.wav');
     await file.writeAsBytes([1, 2, 3]);

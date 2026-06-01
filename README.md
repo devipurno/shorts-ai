@@ -1,4 +1,9 @@
-# Shorts AI Monorepo
+﻿# Shorts AI Monorepo
+
+[![CI](https://github.com/purnomodevi606/shorts-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/purnomodevi606/shorts-ai/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/purnomodevi606/shorts-ai/branch/main/graph/badge.svg)](https://codecov.io/gh/purnomodevi606/shorts-ai)
+[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
+
 
 Production scaffold for an AI YouTube Shorts automation MVP.
 
@@ -64,3 +69,4 @@ If the Supabase CLI is not linked, run the SQL in
 Dashboard SQL editor. The migration creates the mobile `profiles`, project
 asset tables, RLS policies, and storage buckets: `avatars`, `videos`,
 `thumbnails`, and `brand_assets`.
+

@@ -31,3 +31,6 @@ __pycache__/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+android/key.properties
+android/upload-keystore.jks
+*.jks

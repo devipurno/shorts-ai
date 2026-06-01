@@ -9,7 +9,8 @@ import 'package:shorts_ai/core/ai/providers/groq_provider.dart';
 void main() {
   test('GroqProvider sends OpenAI-compatible chat request', () async {
     final dio = Dio();
-    final adapter = DioAdapter(dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
+    final adapter = DioAdapter(
+        dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
     late Map<String, dynamic> body;
 
     adapter.onPost(
@@ -37,7 +38,8 @@ void main() {
 
   test('GroqProvider transcribes audio with Whisper Large V3', () async {
     final dio = Dio();
-    final adapter = DioAdapter(dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
+    final adapter = DioAdapter(
+        dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
     final file = File('${Directory.systemTemp.path}/groq-provider-test.wav');
     await file.writeAsBytes([1, 2, 3]);
 
@@ -50,7 +52,8 @@ void main() {
     );
 
     final provider = GroqProvider(dio: dio, apiKey: 'groq-key');
-    final result = await provider.transcribeAudio(STTRequest(filePath: file.path));
+    final result =
+        await provider.transcribeAudio(STTRequest(filePath: file.path));
 
     expect(result.getOrThrow().text, 'transkrip');
   });

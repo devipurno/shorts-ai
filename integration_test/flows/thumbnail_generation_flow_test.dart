@@ -9,7 +9,8 @@ import 'integration_flow_helper.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('thumbnail editor renders A/B canvas and toolbar', (tester) async {
+  testWidgets('thumbnail editor renders A/B canvas and toolbar',
+      (tester) async {
     await pumpFlowWidget(
       tester,
       const ThumbnailEditorScreen(videoId: 'integration-video'),

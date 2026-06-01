@@ -5,9 +5,11 @@ import 'package:shorts_ai/core/ai/models/ai_request.dart';
 import 'package:shorts_ai/core/ai/providers/gemini_provider.dart';
 
 void main() {
-  test('GeminiProvider sends generateContent request and parses text', () async {
+  test('GeminiProvider sends generateContent request and parses text',
+      () async {
     final dio = Dio();
-    final adapter = DioAdapter(dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
+    final adapter = DioAdapter(
+        dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
     late Map<String, dynamic> body;
 
     adapter.onPost(

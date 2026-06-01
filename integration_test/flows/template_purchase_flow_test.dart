@@ -9,7 +9,8 @@ import 'integration_flow_helper.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('template library shows premium template purchase surface', (tester) async {
+  testWidgets('template library shows premium template purchase surface',
+      (tester) async {
     await pumpFlowWidget(
       tester,
       const TemplateLibraryScreen(),

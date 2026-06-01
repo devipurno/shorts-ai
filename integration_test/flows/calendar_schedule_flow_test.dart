@@ -9,7 +9,8 @@ import 'integration_flow_helper.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('calendar scheduler screen renders schedule action', (tester) async {
+  testWidgets('calendar scheduler screen renders schedule action',
+      (tester) async {
     await pumpFlowWidget(
       tester,
       const ContentCalendarScreen(),

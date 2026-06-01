@@ -14,7 +14,8 @@ void main() {
           firstDay: DateTime(2026),
           lastDay: DateTime(2027),
           focusedDay: focused,
-          eventLoader: (day) => day.month == focused.month ? [day.day] : const [],
+          eventLoader: (day) =>
+              day.month == focused.month ? [day.day] : const [],
         ),
       ));
       await tester.pump();

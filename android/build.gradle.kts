@@ -1,7 +1,9 @@
-allprojects {
+﻿allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.arthenica.com") }
     }
 }
 
@@ -22,3 +24,6 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
+
+

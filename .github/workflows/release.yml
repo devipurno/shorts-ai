@@ -1,0 +1,137 @@
+﻿name: Release - Tag, Changelog, GitHub Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Semver tag to release, for example v0.1.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  FLUTTER_VERSION: "3.24.0"
+
+jobs:
+  validate_tag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      tag_name: ${{ steps.tag.outputs.tag_name }}
+      prerelease: ${{ steps.tag.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: tag
+        shell: bash
+        run: |
+          TAG_NAME="${GITHUB_REF_NAME}"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            TAG_NAME="${{ inputs.version }}"
+          fi
+          if [[ ! "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9.-]+)?$ ]]; then
+            echo "Invalid tag: $TAG_NAME" >&2
+            exit 1
+          fi
+          PUBSPEC_VERSION="$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)"
+          if [[ "${TAG_NAME#v}" != "$PUBSPEC_VERSION" ]]; then
+            echo "pubspec.yaml version $PUBSPEC_VERSION does not match $TAG_NAME" >&2
+            exit 1
+          fi
+          if [[ "$TAG_NAME" == *-* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
+
+  build_release:
+    needs: validate_tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - name: Validate signing secrets
+        shell: bash
+        run: |
+          test -n "$KEYSTORE_BASE64"
+          test -n "$KEYSTORE_PASSWORD"
+          test -n "$KEY_ALIAS"
+          test -n "$KEY_PASSWORD"
+      - name: Decode keystore
+        run: echo "$KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
+      - name: Create key.properties
+        run: |
+          printf "storePassword=%s\nkeyPassword=%s\nkeyAlias=%s\nstoreFile=upload-keystore.jks\n" "$KEYSTORE_PASSWORD" "$KEY_PASSWORD" "$KEY_ALIAS" > android/key.properties
+      - run: flutter pub get
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - run: flutter build apk --release --split-per-abi
+      - run: flutter build appbundle --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/*.apk
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 30
+
+  github_release:
+    needs: [validate_tag, build_release]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install git-cliff
+        uses: taiki-e/install-action@git-cliff
+      - name: Generate changelog
+        shell: bash
+        run: |
+          TAG_NAME="${{ needs.validate_tag.outputs.tag_name }}"
+          PREVIOUS_TAG="$(git describe --tags --abbrev=0 "$TAG_NAME^" 2>/dev/null || true)"
+          if [[ -n "$PREVIOUS_TAG" ]]; then
+            git cliff "$PREVIOUS_TAG..$TAG_NAME" --config cliff.toml --output RELEASE_NOTES.md
+          else
+            git cliff "$TAG_NAME" --config cliff.toml --output RELEASE_NOTES.md
+          fi
+      - uses: actions/download-artifact@v4
+        with:
+          name: app-release-apk
+          path: release-artifacts
+      - uses: actions/download-artifact@v4
+        with:
+          name: app-release-aab
+          path: release-artifacts
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.validate_tag.outputs.tag_name }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            release-artifacts/*.apk
+            release-artifacts/*.aab
+          draft: false
+          prerelease: ${{ needs.validate_tag.outputs.prerelease }}

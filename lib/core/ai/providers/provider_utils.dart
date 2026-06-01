@@ -10,13 +10,15 @@ AIResult<T> aiFailure<T>(String provider, Object error) {
         error.type == DioExceptionType.receiveTimeout ||
         error.type == DioExceptionType.sendTimeout) {
       return Result.failure(
-        AIProviderError.timeout(provider: provider, message: error.message ?? ''),
+        AIProviderError.timeout(
+            provider: provider, message: error.message ?? ''),
       );
     }
     final status = error.response?.statusCode;
     if (status == 429) {
       return Result.failure(
-        AIProviderError.quotaExceeded(provider: provider, message: 'Quota exceeded'),
+        AIProviderError.quotaExceeded(
+            provider: provider, message: 'Quota exceeded'),
       );
     }
     return Result.failure(
@@ -28,7 +30,8 @@ AIResult<T> aiFailure<T>(String provider, Object error) {
   }
 
   return Result.failure(
-    AIProviderError.invalidResponse(provider: provider, message: error.toString()),
+    AIProviderError.invalidResponse(
+        provider: provider, message: error.toString()),
   );
 }
 

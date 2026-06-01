@@ -71,7 +71,10 @@ class GeminiProvider implements LLMProvider {
         );
       }
       return Result.success(
-        LLMResponse(text: text, provider: providerName, raw: data.cast<String, Object?>()),
+        LLMResponse(
+            text: text,
+            provider: providerName,
+            raw: data.cast<String, Object?>()),
       );
     } catch (error) {
       return aiFailure(providerName, error);

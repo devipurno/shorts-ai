@@ -8,7 +8,8 @@ void main() {
   test('DeepSeekProvider parses OpenAI-compatible response and estimates cost',
       () async {
     final dio = Dio();
-    final adapter = DioAdapter(dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
+    final adapter = DioAdapter(
+        dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
 
     adapter.onPost(
       DeepSeekProvider.endpoint,

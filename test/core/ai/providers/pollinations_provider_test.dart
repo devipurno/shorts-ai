@@ -9,7 +9,8 @@ import 'package:shorts_ai/core/ai/providers/pollinations_provider.dart';
 void main() {
   test('PollinationsProvider downloads generated image bytes', () async {
     final dio = Dio();
-    final adapter = DioAdapter(dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
+    final adapter = DioAdapter(
+        dio: dio, matcher: const UrlRequestMatcher(matchMethod: true));
     final path = 'https://image.pollinations.ai/prompt/gold%20shorts';
 
     adapter.onGet(path, (server) => server.reply(200, [137, 80, 78, 71]));

@@ -33,7 +33,8 @@ void main() {
 }
 
 class _FailingUpstashClient extends UpstashClient {
-  _FailingUpstashClient() : super(restUrl: 'https://redis.test', token: 'token');
+  _FailingUpstashClient()
+      : super(restUrl: 'https://redis.test', token: 'token');
 
   @override
   bool get isConfigured => true;

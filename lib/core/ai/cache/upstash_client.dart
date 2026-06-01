@@ -14,7 +14,10 @@ class UpstashClient {
   final String? _token;
 
   bool get isConfigured =>
-      _restUrl != null && _restUrl.isNotEmpty && _token != null && _token.isNotEmpty;
+      _restUrl != null &&
+      _restUrl.isNotEmpty &&
+      _token != null &&
+      _token.isNotEmpty;
 
   Future<String?> get(String key) async {
     final result = await pipeline([

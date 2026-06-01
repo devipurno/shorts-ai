@@ -74,7 +74,8 @@ class AIRouter implements AIService {
     final cached = await _cache.get(cacheKey);
     if (cached != null) {
       return Result.success(
-        STTResponse(text: cached, provider: 'cache', language: request.language),
+        STTResponse(
+            text: cached, provider: 'cache', language: request.language),
       );
     }
     if (!await _quota.canUseProvider('groq_whisper')) {
