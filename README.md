@@ -6,7 +6,7 @@ AI-powered short video creation - from idea to YouTube/TikTok in minutes.
 
 [![CI](https://github.com/purnomodevi606/shorts-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/purnomodevi606/shorts-ai/actions/workflows/ci.yml)
 [![Coverage](https://codecov.io/gh/purnomodevi606/shorts-ai/branch/main/graph/badge.svg)](https://codecov.io/gh/purnomodevi606/shorts-ai)
-![Flutter](https://img.shields.io/badge/Flutter-3.24%2B-02569B)
+![Flutter](https://img.shields.io/badge/Flutter-3.32%2B-02569B)
 [![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
 ![Release](https://img.shields.io/github/v/release/purnomodevi606/shorts-ai?display_name=tag)
 
@@ -39,7 +39,7 @@ Replace these placeholders with emulator screenshots before public beta. Recomme
 
 | Layer | Technology |
 | --- | --- |
-| Frontend | Flutter 3.24+, Dart 3.4+, Android only Phase 0-2 |
+| Frontend | Flutter 3.32+, Dart 3.4+, Android only Phase 0-2 |
 | State | Riverpod 3.x patterns, generated providers, legacy StateNotifier where practical |
 | Routing | go_router 17.x with route guards and shell tabs |
 | Backend | Supabase Auth, DB, Storage, Realtime plus Fastify API |
@@ -54,7 +54,7 @@ Replace these placeholders with emulator screenshots before public beta. Recomme
 
 ### Prerequisites
 
-- Flutter 3.24 or newer.
+- Flutter 3.32 or newer.
 - Dart 3.4 or newer.
 - Android SDK and one Android emulator/device.
 - Java 17.
