@@ -1,4 +1,4 @@
-﻿name: CI - Lint, Test, Build
+name: CI - Lint, Test, Build
 
 on:
   pull_request:
@@ -28,6 +28,8 @@ jobs:
           channel: stable
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
+      - name: Prepare CI env asset
+        run: cp .env.example .env.local
       - run: flutter pub get
       - run: dart format --output=none --set-exit-if-changed .
       - run: flutter analyze --fatal-infos --fatal-warnings
@@ -50,6 +52,8 @@ jobs:
             .dart_tool
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
+      - name: Prepare CI env asset
+        run: cp .env.example .env.local
       - run: flutter pub get
       - run: dart run build_runner build --delete-conflicting-outputs
       - run: flutter test --coverage --reporter expanded
@@ -89,6 +93,8 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
+      - name: Prepare CI env asset
+        run: cp .env.example .env.local
       - run: flutter pub get
       - run: dart run build_runner build --delete-conflicting-outputs
       - run: flutter build apk --debug --target-platform android-arm64
@@ -130,6 +136,9 @@ jobs:
           channel: stable
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
+      - name: Prepare CI env asset
+        if: steps.signing.outputs.available == 'true'
+        run: cp .env.example .env.local
       - name: Decode keystore
         if: steps.signing.outputs.available == 'true'
         run: echo "$KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
