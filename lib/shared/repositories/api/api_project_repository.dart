@@ -5,6 +5,7 @@ import '../../services/supabase_service.dart';
 import '../project_repository.dart';
 import 'api_repository_helpers.dart';
 
+/// Public API surface for `ApiProjectRepository`.
 class ApiProjectRepository implements ProjectRepository {
   ApiProjectRepository({Dio? dio, SupabaseService? supabaseService})
       : _client = ApiResourceClient<Project>(

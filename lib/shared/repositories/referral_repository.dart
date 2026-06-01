@@ -1,5 +1,10 @@
 import '../models/referral.dart';
 
+/// Contract for ReferralRepository implementations.
+///
+/// Implementations may be backed by mock memory stores, Supabase, or the
+/// Fastify API. Callers should depend on this abstraction through Riverpod
+/// providers so feature code stays portable across local and production modes.
 abstract class ReferralRepository {
   Future<List<Referral>> getAll({
     String? referrerUserId,

@@ -4,6 +4,7 @@ import '../../models/notification.dart';
 import '../notification_repository.dart';
 import 'api_repository_helpers.dart';
 
+/// Public API surface for `ApiNotificationRepository`.
 class ApiNotificationRepository implements NotificationRepository {
   ApiNotificationRepository({Dio? dio})
       : _client = ApiResourceClient<AppNotification>(

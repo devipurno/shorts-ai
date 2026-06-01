@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/errors/app_exception.dart';
 
+/// Public API surface for `MockRepositoryConfig`.
 class MockRepositoryConfig {
   const MockRepositoryConfig({
     this.minDelay = const Duration(milliseconds: 200),
@@ -27,6 +28,7 @@ class MockRepositoryConfig {
   final int? randomSeed;
 }
 
+/// Public API surface for `MockRepositoryRuntime`.
 class MockRepositoryRuntime {
   MockRepositoryRuntime(this.config) : _random = Random(config.randomSeed);
 

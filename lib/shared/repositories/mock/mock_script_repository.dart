@@ -7,6 +7,7 @@ import '../../models/script.dart';
 import '../script_repository.dart';
 import 'mock_repository_utils.dart';
 
+/// Public API surface for `MockScriptRepository`.
 class MockScriptRepository implements ScriptRepository {
   MockScriptRepository({
     MockRepositoryConfig config = const MockRepositoryConfig(),

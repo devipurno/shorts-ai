@@ -7,6 +7,7 @@ import '../../models/subtitle.dart';
 import '../subtitle_repository.dart';
 import 'mock_repository_utils.dart';
 
+/// Public API surface for `MockSubtitleRepository`.
 class MockSubtitleRepository implements SubtitleRepository {
   MockSubtitleRepository({
     MockRepositoryConfig config = const MockRepositoryConfig(),

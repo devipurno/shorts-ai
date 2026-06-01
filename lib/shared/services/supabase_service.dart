@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 import '../../core/env/env.dart';
 
+/// Supabase bootstrap service for auth, database, storage, and realtime access.
 class SupabaseService {
   SupabaseService({supabase.SupabaseClient? client}) : _client = client;
 
@@ -171,6 +172,7 @@ class SupabaseService {
   }
 }
 
+/// Supabase bootstrap service for auth, database, storage, and realtime access.
 class SupabaseAuthProfile {
   const SupabaseAuthProfile({
     required this.id,

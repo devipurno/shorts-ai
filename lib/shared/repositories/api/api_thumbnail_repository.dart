@@ -4,6 +4,7 @@ import '../../models/thumbnail.dart';
 import '../thumbnail_repository.dart';
 import 'api_repository_helpers.dart';
 
+/// Public API surface for `ApiThumbnailRepository`.
 class ApiThumbnailRepository implements ThumbnailRepository {
   ApiThumbnailRepository({Dio? dio})
       : _client = ApiResourceClient<Thumbnail>(

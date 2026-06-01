@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'preferences_service.dart';
 
+/// JSON cache service with expiry semantics for lightweight local data.
 class CacheService {
   CacheService(
     this._preferences, {

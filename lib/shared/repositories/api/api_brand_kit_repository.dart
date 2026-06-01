@@ -4,6 +4,7 @@ import '../../models/brand_kit.dart';
 import '../brand_kit_repository.dart';
 import 'api_repository_helpers.dart';
 
+/// Public API surface for `ApiBrandKitRepository`.
 class ApiBrandKitRepository implements BrandKitRepository {
   ApiBrandKitRepository({Dio? dio})
       : _client = ApiResourceClient<BrandKit>(

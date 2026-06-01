@@ -7,6 +7,7 @@ import '../../models/analytics_event.dart';
 import '../analytics_repository.dart';
 import 'api_repository_helpers.dart';
 
+/// Public API surface for `ApiAnalyticsRepository`.
 class ApiAnalyticsRepository implements AnalyticsRepository {
   ApiAnalyticsRepository({Dio? dio})
       : _dio = dio ?? DioClient.instance.dio,

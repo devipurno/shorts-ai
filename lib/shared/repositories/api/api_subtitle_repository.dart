@@ -4,6 +4,7 @@ import '../../models/subtitle.dart';
 import '../subtitle_repository.dart';
 import 'api_repository_helpers.dart';
 
+/// Public API surface for `ApiSubtitleRepository`.
 class ApiSubtitleRepository implements SubtitleRepository {
   ApiSubtitleRepository({Dio? dio})
       : _client = ApiResourceClient<Subtitle>(

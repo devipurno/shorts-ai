@@ -8,6 +8,7 @@ typedef JsonFactory<T> = T Function(Map<String, Object?> json);
 typedef JsonEncoder<T> = Map<String, Object?> Function(T value);
 typedef JsonId<T> = String Function(T value);
 
+/// Public API surface for `ApiResourceClient`.
 class ApiResourceClient<T> {
   ApiResourceClient({
     required this.path,

@@ -7,6 +7,7 @@ import '../../models/subscription.dart';
 import '../subscription_repository.dart';
 import 'api_repository_helpers.dart';
 
+/// Public API surface for `ApiSubscriptionRepository`.
 class ApiSubscriptionRepository implements SubscriptionRepository {
   ApiSubscriptionRepository({Dio? dio})
       : _dio = dio ?? DioClient.instance.dio,

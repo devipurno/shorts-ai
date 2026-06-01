@@ -1,5 +1,10 @@
 import '../models/notification.dart';
 
+/// Contract for NotificationRepository implementations.
+///
+/// Implementations may be backed by mock memory stores, Supabase, or the
+/// Fastify API. Callers should depend on this abstraction through Riverpod
+/// providers so feature code stays portable across local and production modes.
 abstract class NotificationRepository {
   Future<List<AppNotification>> getAll({
     String? userId,

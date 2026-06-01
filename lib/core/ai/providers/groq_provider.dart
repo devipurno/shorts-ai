@@ -9,6 +9,7 @@ import '../ai_service.dart';
 import '../models/ai_request.dart';
 import 'provider_utils.dart';
 
+/// Public API surface for `GroqProvider`.
 class GroqProvider implements LLMProvider, STTProvider {
   GroqProvider({Dio? dio, String? apiKey})
       : _dio = dio ?? DioClient.instance.dio,

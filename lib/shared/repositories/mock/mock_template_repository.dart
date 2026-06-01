@@ -4,6 +4,7 @@ import '../../models/template.dart';
 import '../template_repository.dart';
 import 'mock_repository_utils.dart';
 
+/// Public API surface for `MockTemplateRepository`.
 class MockTemplateRepository implements TemplateRepository {
   MockTemplateRepository({
     MockRepositoryConfig config = const MockRepositoryConfig(),

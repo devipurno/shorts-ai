@@ -14,6 +14,15 @@ import 'providers/provider_utils.dart';
 import 'quota_tracker.dart';
 import '../utils/result.dart';
 
+/// Routes AI requests across cache, quotas, and provider fallbacks.
+///
+/// The router checks [AICache] first, then tries Gemini, Groq, and DeepSeek
+/// for text generation. STT uses Groq Whisper, TTS uses Edge TTS, and image
+/// generation uses Pollinations in the Phase 0 stack.
+///
+/// ```dart
+/// final response = await aiRouter.generateText(request);
+/// ```
 class AIRouter implements AIService {
   AIRouter({
     required GeminiProvider gemini,
@@ -102,6 +111,7 @@ class AIRouter implements AIService {
     return _pollinations.generateImage(request);
   }
 
+  /// Builds a deterministic cache key for an AI request payload.
   static String cacheKeyFor(String type, Map<String, Object?> payload) {
     final canonical = jsonEncode(payload);
     final hash = sha256.convert(utf8.encode(canonical));

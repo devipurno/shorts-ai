@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'upstash_client.dart';
 
+/// Public API surface for `AICache`.
 class AICache {
   AICache({UpstashClient? upstashClient, DateTime Function()? now})
       : _upstash = upstashClient,

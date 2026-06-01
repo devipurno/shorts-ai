@@ -17,6 +17,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
 
 typedef RepositoryReader = T Function<T>(ProviderListenable<T> provider);
 
+/// Offline write queue and replay coordinator for repository mutations.
 class SyncService {
   SyncService(
     this._read, {
@@ -112,6 +113,7 @@ class SyncService {
   }
 }
 
+/// Offline write queue and replay coordinator for repository mutations.
 class OfflineWrite {
   const OfflineWrite({
     required this.method,

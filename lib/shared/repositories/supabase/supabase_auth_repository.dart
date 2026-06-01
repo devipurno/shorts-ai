@@ -3,6 +3,7 @@ import '../../models/user.dart';
 import '../../services/supabase_service.dart';
 import '../auth_repository.dart';
 
+/// Public API surface for `SupabaseAuthRepository`.
 class SupabaseAuthRepository implements AuthRepository {
   SupabaseAuthRepository({SupabaseService? service})
       : _service = service ?? SupabaseService();

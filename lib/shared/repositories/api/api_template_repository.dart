@@ -4,6 +4,7 @@ import '../../models/template.dart';
 import '../template_repository.dart';
 import 'api_repository_helpers.dart';
 
+/// Public API surface for `ApiTemplateRepository`.
 class ApiTemplateRepository implements TemplateRepository {
   ApiTemplateRepository({Dio? dio})
       : _client = ApiResourceClient<Template>(

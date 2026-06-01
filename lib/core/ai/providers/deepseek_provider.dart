@@ -7,6 +7,7 @@ import '../ai_service.dart';
 import '../models/ai_request.dart';
 import 'provider_utils.dart';
 
+/// Public API surface for `DeepSeekProvider`.
 class DeepSeekProvider implements LLMProvider {
   DeepSeekProvider({Dio? dio, String? apiKey})
       : _dio = dio ?? DioClient.instance.dio,

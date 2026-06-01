@@ -4,6 +4,8 @@ part 'ai_request.freezed.dart';
 part 'ai_request.g.dart';
 
 @freezed
+
+/// Public API surface for `LLMRequest`.
 abstract class LLMRequest with _$LLMRequest {
   const factory LLMRequest({
     required String prompt,
@@ -18,6 +20,8 @@ abstract class LLMRequest with _$LLMRequest {
 }
 
 @freezed
+
+/// Public API surface for `STTRequest`.
 abstract class STTRequest with _$STTRequest {
   const factory STTRequest({
     required String filePath,
@@ -30,6 +34,8 @@ abstract class STTRequest with _$STTRequest {
 }
 
 @freezed
+
+/// Public API surface for `TTSRequest`.
 abstract class TTSRequest with _$TTSRequest {
   const factory TTSRequest({
     required String text,
@@ -44,6 +50,8 @@ abstract class TTSRequest with _$TTSRequest {
 }
 
 @freezed
+
+/// Public API surface for `ImageRequest`.
 abstract class ImageRequest with _$ImageRequest {
   const factory ImageRequest({
     required String prompt,
@@ -58,6 +66,8 @@ abstract class ImageRequest with _$ImageRequest {
 }
 
 @freezed
+
+/// Public API surface for `LLMResponse`.
 abstract class LLMResponse with _$LLMResponse {
   const factory LLMResponse({
     required String text,
@@ -73,6 +83,8 @@ abstract class LLMResponse with _$LLMResponse {
 }
 
 @freezed
+
+/// Public API surface for `STTResponse`.
 abstract class STTResponse with _$STTResponse {
   const factory STTResponse({
     required String text,
@@ -86,6 +98,8 @@ abstract class STTResponse with _$STTResponse {
 }
 
 @freezed
+
+/// Public API surface for `TTSResponse`.
 abstract class TTSResponse with _$TTSResponse {
   const factory TTSResponse({
     required String audioPath,
@@ -99,6 +113,8 @@ abstract class TTSResponse with _$TTSResponse {
 }
 
 @freezed
+
+/// Public API surface for `ImageResponse`.
 abstract class ImageResponse with _$ImageResponse {
   const factory ImageResponse({
     required String imagePath,

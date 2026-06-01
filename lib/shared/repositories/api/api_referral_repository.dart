@@ -4,6 +4,7 @@ import '../../models/referral.dart';
 import '../referral_repository.dart';
 import 'api_repository_helpers.dart';
 
+/// Public API surface for `ApiReferralRepository`.
 class ApiReferralRepository implements ReferralRepository {
   ApiReferralRepository({Dio? dio})
       : _client = ApiResourceClient<Referral>(

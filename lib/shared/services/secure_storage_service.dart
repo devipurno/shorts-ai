@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+/// Public API surface for `SecureStorageClient`.
 abstract class SecureStorageClient {
   Future<void> write({required String key, required String? value});
 
@@ -14,6 +15,7 @@ abstract class SecureStorageClient {
   Future<void> deleteAll();
 }
 
+/// Secure storage wrapper for auth tokens and user-provided API keys.
 class FlutterSecureStorageClient implements SecureStorageClient {
   const FlutterSecureStorageClient([
     this._storage = const FlutterSecureStorage(
@@ -50,6 +52,7 @@ class FlutterSecureStorageClient implements SecureStorageClient {
   }
 }
 
+/// Secure storage wrapper for auth tokens and user-provided API keys.
 class SecureStorageService {
   const SecureStorageService(this._client);
 

@@ -1,4 +1,4 @@
-﻿# AutoShort CI/CD Setup
+# AutoShort CI/CD Setup
 
 ## Overview
 
@@ -105,14 +105,14 @@ Task 26 last measured coverage: 72.20%.
 ## Release Flow
 
 1. Ensure `pubspec.yaml` version matches the intended tag without the `v` prefix, for example `0.1.0+1` for tag `v0.1.0`.
-2. Push a semver tag:
+1. Push a semver tag:
 
 ```bash
 git tag v0.1.0
 git push origin v0.1.0
 ```
 
-3. The release workflow builds signed APK splits and AAB, generates release notes, and publishes a GitHub Release.
+1. The release workflow builds signed APK splits and AAB, generates release notes, and publishes a GitHub Release.
 
 Prerelease tags such as `v0.1.0-beta.1` are marked as prerelease automatically.
 

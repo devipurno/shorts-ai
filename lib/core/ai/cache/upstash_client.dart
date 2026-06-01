@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../env/env.dart';
 import '../../network/dio_client.dart';
 
+/// Public API surface for `UpstashClient`.
 class UpstashClient {
   UpstashClient({Dio? dio, String? restUrl, String? token})
       : _dio = dio ?? DioClient.instance.dio,

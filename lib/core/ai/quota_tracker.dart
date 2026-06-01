@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../../shared/services/preferences_service.dart';
 
+/// Public API surface for `QuotaTracker`.
 class QuotaTracker {
   QuotaTracker({
     PreferencesService? preferences,

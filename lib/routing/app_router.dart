@@ -29,6 +29,7 @@ import '../shared/widgets/main_shell.dart';
 import '../shared/widgets/placeholder_screen.dart';
 import 'routes.dart';
 
+/// Provides the application router with auth refresh handling.
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authRefreshListenable = AuthRouterRefreshListenable(ref);
   final router = createAppRouter(authStateListenable: authRefreshListenable);
@@ -40,6 +41,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return router;
 });
 
+/// Creates the full go_router graph used by the mobile app.
+///
+/// Tests can provide [initialLocation] and [initialAuthState] to validate
+/// redirects without booting the full app shell.
 GoRouter createAppRouter({
   String initialLocation = AppRoutes.splash,
   AuthState initialAuthState = const Unauthenticated(),
@@ -229,6 +234,7 @@ String? _authRedirect(
   return null;
 }
 
+/// Bridges Riverpod auth state changes into go_router refresh notifications.
 final class AuthRouterRefreshListenable extends ChangeNotifier
     implements ValueListenable<AuthState> {
   AuthRouterRefreshListenable(Ref ref) : _state = ref.read(authProvider) {
@@ -254,6 +260,7 @@ final class AuthRouterRefreshListenable extends ChangeNotifier
   }
 }
 
+/// Returns a deterministic authenticated user for router tests.
 User mockAuthenticatedRouteUser() {
   return User(
     id: 'mock-route-user',

@@ -7,6 +7,7 @@ import '../../models/notification.dart';
 import '../notification_repository.dart';
 import 'mock_repository_utils.dart';
 
+/// Public API surface for `MockNotificationRepository`.
 class MockNotificationRepository implements NotificationRepository {
   MockNotificationRepository({
     MockRepositoryConfig config = const MockRepositoryConfig(),

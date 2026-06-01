@@ -5,6 +5,7 @@ import '../../models/referral.dart';
 import '../referral_repository.dart';
 import 'mock_repository_utils.dart';
 
+/// Public API surface for `MockReferralRepository`.
 class MockReferralRepository implements ReferralRepository {
   MockReferralRepository({
     MockRepositoryConfig config = const MockRepositoryConfig(),

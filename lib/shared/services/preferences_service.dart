@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Typed wrapper around [SharedPreferences] for non-sensitive local settings.
 class PreferencesService {
   const PreferencesService(this._preferences);
 

@@ -7,6 +7,7 @@ import '../../models/user.dart';
 import '../user_repository.dart';
 import 'mock_repository_utils.dart';
 
+/// Public API surface for `MockUserRepository`.
 class MockUserRepository implements UserRepository {
   MockUserRepository({
     MockRepositoryConfig config = const MockRepositoryConfig(),

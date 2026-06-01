@@ -5,6 +5,7 @@ import '../../models/thumbnail.dart';
 import '../thumbnail_repository.dart';
 import 'mock_repository_utils.dart';
 
+/// Public API surface for `MockThumbnailRepository`.
 class MockThumbnailRepository implements ThumbnailRepository {
   MockThumbnailRepository({
     MockRepositoryConfig config = const MockRepositoryConfig(),

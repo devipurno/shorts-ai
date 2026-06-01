@@ -34,3 +34,4 @@ __pycache__/
 android/key.properties
 android/upload-keystore.jks
 *.jks
+doc/

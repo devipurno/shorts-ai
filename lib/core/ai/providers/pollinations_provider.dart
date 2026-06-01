@@ -8,6 +8,7 @@ import '../ai_service.dart';
 import '../models/ai_request.dart';
 import 'provider_utils.dart';
 
+/// Public API surface for `PollinationsProvider`.
 class PollinationsProvider implements AIImageProvider {
   PollinationsProvider({Dio? dio}) : _dio = dio ?? DioClient.instance.dio;
 

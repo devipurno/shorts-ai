@@ -5,6 +5,7 @@ import '../../models/user.dart';
 import '../../services/supabase_service.dart';
 import '../user_repository.dart';
 
+/// Public API surface for `SupabaseUserRepository`.
 class SupabaseUserRepository implements UserRepository {
   SupabaseUserRepository({SupabaseService? service})
       : _service = service ?? SupabaseService();

@@ -6,6 +6,7 @@ import '../../models/analytics_event.dart';
 import '../analytics_repository.dart';
 import 'mock_repository_utils.dart';
 
+/// Public API surface for `MockAnalyticsRepository`.
 class MockAnalyticsRepository implements AnalyticsRepository {
   MockAnalyticsRepository({
     MockRepositoryConfig config = const MockRepositoryConfig(),

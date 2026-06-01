@@ -4,6 +4,7 @@ import '../../models/script.dart';
 import '../script_repository.dart';
 import 'api_repository_helpers.dart';
 
+/// Public API surface for `ApiScriptRepository`.
 class ApiScriptRepository implements ScriptRepository {
   ApiScriptRepository({Dio? dio})
       : _client = ApiResourceClient<Script>(

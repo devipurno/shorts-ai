@@ -11,6 +11,7 @@ typedef EdgeTtsSynthesizer = Future<void> Function({
   required String outputPath,
 });
 
+/// Public API surface for `EdgeTTSProvider`.
 class EdgeTTSProvider implements TTSProvider {
   EdgeTTSProvider({EdgeTtsSynthesizer? synthesizer})
       : _synthesizer = synthesizer ?? _edgeTtsSave;

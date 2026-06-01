@@ -5,6 +5,7 @@ import '../../models/brand_kit.dart';
 import '../brand_kit_repository.dart';
 import 'mock_repository_utils.dart';
 
+/// Public API surface for `MockBrandKitRepository`.
 class MockBrandKitRepository implements BrandKitRepository {
   MockBrandKitRepository({
     MockRepositoryConfig config = const MockRepositoryConfig(),

@@ -7,6 +7,7 @@ import '../../models/user.dart';
 import '../subscription_repository.dart';
 import 'mock_repository_utils.dart';
 
+/// Public API surface for `MockSubscriptionRepository`.
 class MockSubscriptionRepository implements SubscriptionRepository {
   MockSubscriptionRepository({
     MockRepositoryConfig config = const MockRepositoryConfig(),
