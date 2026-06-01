@@ -1,11 +1,57 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
+import '../data/mock_templates.dart';
+import '../models/template_model.dart';
 import '../../../shared/models/project.dart';
 import '../../../shared/models/template.dart';
 import '../../../shared/repositories/providers.dart';
 import '../../auth/models/user.dart';
 import '../../auth/providers/current_user_provider.dart';
+
+final selectedCategoryProvider = StateProvider<String?>((ref) => null);
+
+final templatesProvider = FutureProvider<List<TemplateModel>>((ref) async {
+  await Future<void>.delayed(const Duration(milliseconds: 180));
+  return mockTemplates;
+});
+
+final filteredTemplatesProvider =
+    FutureProvider<List<TemplateModel>>((ref) async {
+  final templates = await ref.watch(templatesProvider.future);
+  final category = ref.watch(selectedCategoryProvider);
+  return filterTemplateModels(templates, category);
+});
+
+final templateModelByIdProvider =
+    FutureProvider.family<TemplateModel?, String>((
+  ref,
+  templateId,
+) async {
+  final templates = await ref.watch(templatesProvider.future);
+  return templates.where((template) => template.id == templateId).firstOrNull;
+});
+
+const templateGalleryCategories = <String>[
+  'All',
+  'Motivation',
+  'Lifestyle',
+  'Tutorial',
+  'Story',
+  'Quote',
+];
+
+List<TemplateModel> filterTemplateModels(
+  List<TemplateModel> templates,
+  String? category,
+) {
+  if (category == null || category == 'All') {
+    return List<TemplateModel>.unmodifiable(templates);
+  }
+  return List<TemplateModel>.unmodifiable(
+    templates.where((template) => template.category == category),
+  );
+}
 
 const templatePageSize = 20;
 const templateTrendingThreshold = 1000;
