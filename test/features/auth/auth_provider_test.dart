@@ -60,15 +60,29 @@ void main() {
     final notifier = container.read(authProvider.notifier);
 
     await notifier.signup('new@autoshort.id', 'secret', 'New Creator');
-    expect(container.read(authProvider), isA<Authenticated>());
+    expect(container.read(authProvider), isA<AuthSignupSuccess>());
 
     await notifier.refreshSession();
-    expect(container.read(authProvider), isA<Authenticated>());
+    expect(container.read(authProvider), isA<Unauthenticated>());
 
     await notifier.logout();
     expect(container.read(authProvider), isA<Unauthenticated>());
 
     await notifier.refreshSession();
     expect(container.read(authProvider), isA<Unauthenticated>());
+  });
+  test('friendlyAuthMessage maps Supabase auth errors', () {
+    expect(
+      friendlyAuthMessage('AuthApiException(message: invalid_credentials)'),
+      'Email atau password salah',
+    );
+    expect(
+      friendlyAuthMessage('email_not_confirmed'),
+      'Cek email lo untuk verifikasi akun',
+    );
+    expect(
+      friendlyAuthMessage('weak_password'),
+      'Password terlalu lemah. Min 6 chars + mix.',
+    );
   });
 }

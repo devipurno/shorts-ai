@@ -10,3 +10,22 @@ final currentUserProvider = Provider<User?>((ref) {
     _ => null,
   };
 });
+
+final displayNameProvider = Provider<String>((ref) {
+  final authState = ref.watch(authProvider);
+  return switch (authState) {
+    Authenticated(:final user) => _displayNameFromFeatureUser(user),
+    _ => 'Devi',
+  };
+});
+
+String _displayNameFromFeatureUser(User user) {
+  final name = user.name?.trim();
+  if (name != null && name.isNotEmpty) {
+    return name;
+  }
+  if (user.email.contains('@')) {
+    return user.email.split('@').first;
+  }
+  return 'Devi';
+}

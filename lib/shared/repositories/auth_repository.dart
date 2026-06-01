@@ -25,6 +25,8 @@ abstract class AuthRepository {
 
   Future<void> sendOtp(String email);
 
+  Future<void> sendPasswordResetEmail(String email);
+
   Future<User?> verifyOtp({
     required String email,
     required String token,

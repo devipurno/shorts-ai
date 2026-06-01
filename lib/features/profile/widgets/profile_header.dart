@@ -16,16 +16,22 @@ class ProfileHeader extends StatelessWidget {
     required this.user,
     required this.onEditProfile,
     required this.onUpgrade,
+    this.displayName,
   });
 
   final User user;
   final VoidCallback onEditProfile;
   final VoidCallback onUpgrade;
+  final String? displayName;
 
   @override
   Widget build(BuildContext context) {
-    final name =
-        user.name?.trim().isNotEmpty == true ? user.name!.trim() : 'Devi';
+    final explicitName = displayName?.trim();
+    final name = explicitName?.isNotEmpty == true
+        ? explicitName!
+        : user.name?.trim().isNotEmpty == true
+            ? user.name!.trim()
+            : 'Devi';
 
     return SliverToBoxAdapter(
       child: Padding(

@@ -108,6 +108,7 @@ class PlaceholderScreen extends ConsumerWidget {
       Unauthenticated() => 'Unauthenticated',
       Authenticating() => 'Authenticating',
       Authenticated(:final user) => 'Authenticated (${user.email})',
+      AuthSignupSuccess(:final email) => 'SignupSuccess ($email)',
       AuthError(:final message) => 'AuthError ($message)',
     };
   }

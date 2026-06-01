@@ -35,7 +35,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Masukkan email yang valid.'), findsOneWidget);
-    expect(find.text('Password wajib diisi.'), findsOneWidget);
+    expect(find.text('Password minimal 6 karakter.'), findsOneWidget);
   });
 
   testWidgets('signup form validates email, password length, and match',
@@ -61,7 +61,7 @@ void main() {
         find.byKey(const Key('password-strength-indicator')), findsOneWidget);
     expect(find.text('Daftar Sekarang'), findsOneWidget);
     expect(find.text('Masukkan email yang valid.'), findsOneWidget);
-    expect(find.text('Password minimal 8 karakter.'), findsOneWidget);
+    expect(find.text('Password minimal 6 karakter.'), findsOneWidget);
     expect(find.text('Password tidak sama.'), findsOneWidget);
   });
 
@@ -130,7 +130,7 @@ void main() {
     expect(find.byKey(const Key('home-screen')), findsOneWidget);
   });
 
-  testWidgets('navigation flow login to signup to forgot to otp to reset',
+  testWidgets('navigation flow login to signup and forgot password reset link',
       (tester) async {
     await tester.pumpWidget(
       const _RouterHarness(initialLocation: AppRoutes.login),
@@ -158,31 +158,12 @@ void main() {
     await _tapVisible(tester, find.byKey(const Key('forgot-submit')));
     await tester.pump();
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('otp-verify-screen')), findsOneWidget);
-    expect(find.textContaining('creator@autoshort.id'), findsOneWidget);
 
-    for (var index = 0; index < 6; index++) {
-      await tester.enterText(find.byKey(Key('otp-$index')), '${index + 1}');
-      await tester.pump();
-    }
-    await tester.pumpAndSettle();
-    expect(find.byKey(const Key('reset-password-screen')), findsOneWidget);
-
-    await _enterTextByKey(
-      tester,
-      const Key('reset-password'),
-      'Strong123!',
+    expect(find.byKey(const Key('forgot-password-screen')), findsOneWidget);
+    expect(
+      find.text('Link reset terkirim. Cek inbox + spam folder.'),
+      findsOneWidget,
     );
-    await _enterTextByKey(
-      tester,
-      const Key('reset-confirm-password'),
-      'Strong123!',
-    );
-    await _tapVisible(tester, find.byKey(const Key('reset-submit')));
-    await tester.pump();
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key('login-screen')), findsOneWidget);
   });
 }
 
