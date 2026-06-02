@@ -80,6 +80,7 @@ class Env {
   static String? get upstashRedisRestToken =>
       _value('UPSTASH_REDIS_REST_TOKEN');
   static String? get sentryDsn => _value('SENTRY_DSN');
+  static String get appVersion => _value('APP_VERSION') ?? '0.1.0';
   static String? get firebaseApiKey => _value('FIREBASE_API_KEY');
   static String? get r2AccountId => _value('R2_ACCOUNT_ID');
   static String? get r2Bucket => _value('R2_BUCKET');

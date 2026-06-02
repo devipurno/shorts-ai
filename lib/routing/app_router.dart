@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/error_reporter.dart';
 import '../features/analytics/analytics_screen.dart';
 import '../features/auth/models/user.dart';
 import '../features/auth/providers/auth_provider.dart';
@@ -31,6 +32,15 @@ import 'routes.dart';
 
 /// Provides the application router with auth refresh handling.
 final appRouterProvider = Provider<GoRouter>((ref) {
+  ref.listen<AuthState>(authProvider, (previous, next) {
+    final reporter = ref.read(errorReporterProvider);
+    if (next case Authenticated(:final user)) {
+      reporter.setUser(userId: user.id);
+    } else {
+      reporter.clearUser();
+    }
+  });
+
   final authRefreshListenable = AuthRouterRefreshListenable(ref);
   final router = createAppRouter(authStateListenable: authRefreshListenable);
 

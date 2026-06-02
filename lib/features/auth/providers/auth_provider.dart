@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/env/env.dart';
+import '../../../core/error_reporter.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/models/user.dart' as data_user;
 import '../../../shared/repositories/auth_repository.dart';
@@ -26,6 +27,7 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier(
     mockDelay: ref.watch(authMockDelayProvider),
     repository: useRepository ? ref.watch(authRepositoryProvider) : null,
+    errorReporter: ref.watch(errorReporterProvider),
   );
 });
 
@@ -104,8 +106,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier({
     Duration mockDelay = const Duration(seconds: 1),
     AuthRepository? repository,
+    ErrorReporter? errorReporter,
   })  : _mockDelay = mockDelay,
         _repository = repository,
+        _errorReporter = errorReporter ?? const NoOpErrorReporter(),
         super(const Unauthenticated()) {
     _hydrateInitialUser();
     _authSubscription = _repository?.watchAuthState().listen(
@@ -122,6 +126,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   final Duration _mockDelay;
   final AuthRepository? _repository;
+  final ErrorReporter _errorReporter;
   StreamSubscription<data_user.User?>? _authSubscription;
 
   Future<void> login(String email, String password) async {
@@ -141,10 +146,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await Future<void>.delayed(_mockDelay);
 
     if (_shouldFail(email, password)) {
+      _errorReporter.addBreadcrumb(
+          message: 'Sign-in attempt: failure', category: 'auth');
       state = const AuthError('Invalid mock credentials.');
       return;
     }
 
+    _errorReporter.addBreadcrumb(
+        message: 'Sign-in attempt: success', category: 'auth');
     state = Authenticated(
       User(
         id: _mockUserId(email),
@@ -174,10 +183,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await Future<void>.delayed(_mockDelay);
 
     if (_shouldFail(email, password) || name.trim().isEmpty) {
+      _errorReporter.addBreadcrumb(
+          message: 'Sign-up attempt: failure', category: 'auth');
       state = const AuthError('Unable to create mock account.');
       return;
     }
 
+    _errorReporter.addBreadcrumb(
+        message: 'Sign-up attempt: success', category: 'auth');
     state = AuthSignupSuccess(email.trim().toLowerCase());
   }
 
@@ -301,6 +314,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
 
     await Future<void>.delayed(_mockDelay);
+    _errorReporter.addBreadcrumb(
+        message: 'Sign-out: success', category: 'auth');
     state = const Unauthenticated();
   }
 
@@ -350,7 +365,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
   ) async {
     try {
       state = await action();
-    } catch (error) {
+    } catch (error, stackTrace) {
+      _errorReporter.captureException(
+        error,
+        stackTrace: stackTrace,
+        extra: {'auth_state': state.runtimeType.toString()},
+        hint: 'auth_repository_action',
+      );
       state = AuthError(_errorMessage(error));
     }
   }

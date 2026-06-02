@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../error_reporter.dart';
 import '../../shared/services/providers.dart';
 import 'ai_proxy_client.dart';
 import 'ai_router.dart';
@@ -51,5 +52,6 @@ Future<AIRouter> aiRouter(Ref ref) async {
     quotaTracker: await ref.watch(quotaTrackerProvider.future),
     cache: await ref.watch(aiCacheProvider.future),
     proxy: AIProxyClient(),
+    errorReporter: ref.watch(errorReporterProvider),
   );
 }

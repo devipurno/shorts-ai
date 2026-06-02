@@ -13,6 +13,7 @@ import 'providers/groq_provider.dart';
 import 'providers/pollinations_provider.dart';
 import 'providers/provider_utils.dart';
 import 'quota_tracker.dart';
+import '../error_reporter.dart';
 import '../utils/result.dart';
 
 /// Routes AI requests across cache, quotas, and provider fallbacks.
@@ -34,6 +35,7 @@ class AIRouter implements AIService {
     required QuotaTracker quotaTracker,
     required AICache cache,
     AIProxyClient? proxy,
+    ErrorReporter? errorReporter,
   })  : _gemini = gemini,
         _groq = groq,
         _deepSeek = deepSeek,
@@ -41,7 +43,8 @@ class AIRouter implements AIService {
         _pollinations = pollinations,
         _quota = quotaTracker,
         _cache = cache,
-        _proxy = proxy;
+        _proxy = proxy,
+        _errorReporter = errorReporter ?? const NoOpErrorReporter();
 
   final GeminiProvider _gemini;
   final GroqProvider _groq;
@@ -51,6 +54,7 @@ class AIRouter implements AIService {
   final QuotaTracker _quota;
   final AICache _cache;
   final AIProxyClient? _proxy;
+  final ErrorReporter _errorReporter;
 
   @override
   Future<AIResult<LLMResponse>> generateText(LLMRequest request) async {
@@ -62,11 +66,13 @@ class AIRouter implements AIService {
 
     final proxy = _proxy;
     if (proxy != null) {
+      _addAiBreadcrumb('proxy', 'generateText');
       final result = await proxy.generateText(request);
       if (result.isSuccess) {
         final value = result.valueOrNull!;
         await _cache.set(cacheKey, value.text, ttl: const Duration(hours: 24));
       }
+      _captureAiFailure(result, 'proxy', 'generateText');
       return result;
     }
 
@@ -75,6 +81,7 @@ class AIRouter implements AIService {
       if (!await _quota.canUseProvider(provider.providerName)) {
         continue;
       }
+      _addAiBreadcrumb(provider.providerName, 'generateText');
       final result = await provider.generateText(request);
       if (result.isSuccess) {
         final value = result.valueOrNull!;
@@ -83,6 +90,7 @@ class AIRouter implements AIService {
         return result;
       }
       final error = result.errorOrNull;
+      _captureAiFailure(result, provider.providerName, 'generateText');
       if (error is QuotaExceeded) {
         await _quota.recordUsage(provider.providerName, amount: 999999);
       }
@@ -106,23 +114,58 @@ class AIRouter implements AIService {
         AIProviderError.quotaExceeded(provider: 'groq_whisper'),
       );
     }
+    _addAiBreadcrumb('groq_whisper', 'transcribeAudio');
     final result = await _groq.transcribeAudio(request);
     if (result.isSuccess) {
       await _quota.recordUsage('groq_whisper');
       await _cache.set(cacheKey, result.valueOrNull!.text,
           ttl: const Duration(hours: 1));
     }
+    _captureAiFailure(result, 'groq_whisper', 'transcribeAudio');
     return result;
   }
 
   @override
-  Future<AIResult<TTSResponse>> generateSpeech(TTSRequest request) {
-    return _edgeTts.generateSpeech(request);
+  Future<AIResult<TTSResponse>> generateSpeech(TTSRequest request) async {
+    _addAiBreadcrumb('edge_tts', 'generateSpeech');
+    final result = await _edgeTts.generateSpeech(request);
+    _captureAiFailure(result, 'edge_tts', 'generateSpeech');
+    return result;
   }
 
   @override
-  Future<AIResult<ImageResponse>> generateImage(ImageRequest request) {
-    return _pollinations.generateImage(request);
+  Future<AIResult<ImageResponse>> generateImage(ImageRequest request) async {
+    _addAiBreadcrumb('pollinations', 'generateImage');
+    final result = await _pollinations.generateImage(request);
+    _captureAiFailure(result, 'pollinations', 'generateImage');
+    return result;
+  }
+
+  void _addAiBreadcrumb(String provider, String endpoint) {
+    _errorReporter.addBreadcrumb(
+      message: 'AI request: $provider/$endpoint',
+      category: 'ai_request',
+      data: {'provider': provider, 'endpoint': endpoint},
+    );
+  }
+
+  void _captureAiFailure<T>(
+    AIResult<T> result,
+    String provider,
+    String endpoint,
+  ) {
+    if (result.isSuccess) {
+      return;
+    }
+    final error = result.errorOrNull;
+    if (error == null) {
+      return;
+    }
+    _errorReporter.captureException(
+      error,
+      extra: {'provider': provider, 'endpoint': endpoint},
+      hint: 'ai_router_failure',
+    );
   }
 
   /// Builds a deterministic cache key for an AI request payload.
