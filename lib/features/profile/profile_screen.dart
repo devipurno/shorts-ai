@@ -19,6 +19,7 @@ import '../../shared/widgets/modals/app_dialog.dart';
 import '../auth/models/user.dart';
 import '../auth/providers/auth_provider.dart';
 import '../auth/providers/current_user_provider.dart';
+import '../feedback/feedback_button.dart';
 import 'providers/profile_provider.dart';
 import 'widgets/edit_profile_modal.dart';
 import 'widgets/menu_item.dart';
@@ -105,6 +106,18 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            if (FeedbackButton.isEnabled)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.xl,
+                    AppSpacing.lg,
+                    0,
+                  ),
+                  child: _FeedbackSection(),
+                ),
+              ),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
@@ -217,6 +230,26 @@ class ProfileScreen extends ConsumerWidget {
       SubscriptionTier.premium => shared_user.SubscriptionTier.premium,
       SubscriptionTier.lifetime => shared_user.SubscriptionTier.lifetime,
     };
+  }
+}
+
+class _FeedbackSection extends StatelessWidget {
+  const _FeedbackSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      key: const Key('profile-feedback-section'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Bantu Kami Berkembang', style: AppTypography.headlineSmall),
+        const SizedBox(height: AppSpacing.md),
+        const AppCard(
+          padding: EdgeInsets.zero,
+          child: FeedbackButton(),
+        ),
+      ],
+    );
   }
 }
 
