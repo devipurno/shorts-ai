@@ -5,9 +5,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../shared/models/template.dart';
 import '../../../shared/widgets/cards/app_card.dart';
-import '../providers/template_provider.dart';
+import '../models/template_model.dart';
 
 class TemplateCard extends StatelessWidget {
   const TemplateCard({
@@ -17,22 +16,21 @@ class TemplateCard extends StatelessWidget {
     this.onLongPress,
   });
 
-  final Template template;
+  final TemplateModel template;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
-    final premium = template.tier == TemplateTier.premium;
-    final trending = template.timesUsed > templateTrendingThreshold;
-
     return GestureDetector(
       key: Key('template-card-${template.id}'),
       onTap: onTap,
       onLongPress: onLongPress,
       child: AppCard(
         padding: EdgeInsets.zero,
-        variant: premium ? AppCardVariant.premiumGold : AppCardVariant.flat,
+        variant: template.isPremium
+            ? AppCardVariant.premiumGold
+            : AppCardVariant.flat,
         child: AspectRatio(
           aspectRatio: 9 / 16,
           child: Stack(
@@ -51,24 +49,33 @@ class TemplateCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (trending)
-                Positioned(
-                  left: AppSpacing.sm,
-                  top: AppSpacing.sm,
-                  child: _Badge(
-                    label: 'Trending',
-                    icon: Icons.local_fire_department_rounded,
-                    color: AppColors.warning,
-                  ),
+              Positioned(
+                left: AppSpacing.sm,
+                top: AppSpacing.sm,
+                child: _Badge(
+                  label: template.category,
+                  icon: Icons.movie_filter_rounded,
+                  color: AppColors.gold,
                 ),
-              if (premium)
+              ),
+              if (template.isPremium)
                 Positioned(
                   right: AppSpacing.sm,
                   top: AppSpacing.sm,
                   child: _Badge(
                     label: 'Premium',
                     icon: Icons.lock_rounded,
-                    color: AppColors.gold,
+                    color: AppColors.goldLight,
+                  ),
+                ),
+              if (template.status == TemplateStatus.comingSoon)
+                Positioned(
+                  right: AppSpacing.sm,
+                  top: template.isPremium ? 46 : AppSpacing.sm,
+                  child: _Badge(
+                    label: 'Coming',
+                    icon: Icons.schedule_rounded,
+                    color: AppColors.info,
                   ),
                 ),
               Positioned(
@@ -90,24 +97,17 @@ class TemplateCard extends StatelessWidget {
                     const SizedBox(height: AppSpacing.xs),
                     Row(
                       children: [
-                        Expanded(
-                          child: Text(
-                            '${template.structure.duration}s',
-                            style: AppTypography.bodySmall.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ),
                         const Icon(
-                          Icons.star_rounded,
-                          color: AppColors.gold,
+                          Icons.timer_outlined,
+                          color: AppColors.textSecondary,
                           size: 14,
                         ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
-                          template.rating.toStringAsFixed(1),
-                          style: AppTypography.labelSmall.copyWith(
-                            color: AppColors.gold,
+                          '${template.duration.inSeconds}s',
+                          key: Key('template-duration-${template.id}'),
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -126,16 +126,17 @@ class TemplateCard extends StatelessWidget {
 class _TemplateImage extends StatelessWidget {
   const _TemplateImage({required this.url});
 
-  final String? url;
+  final String url;
 
   @override
   Widget build(BuildContext context) {
-    if (url == null || url!.isEmpty) {
+    if (url.trim().isEmpty) {
       return const _TemplateFallback();
     }
 
     return CachedNetworkImage(
-      imageUrl: url!,
+      key: const Key('template-thumbnail-image'),
+      imageUrl: url,
       fit: BoxFit.cover,
       placeholder: (context, url) => const _TemplateFallback(),
       errorWidget: (context, url, error) => const _TemplateFallback(),
