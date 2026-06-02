@@ -1,4 +1,5 @@
 import '../../core/env/env.dart';
+import '../../core/error_reporter.dart';
 import '../models/user.dart';
 import 'supabase_service.dart';
 
@@ -8,10 +9,14 @@ import 'supabase_service.dart';
 /// service exposes the direct Supabase Auth operations needed by email/password
 /// screens and profile identity display.
 class AuthService {
-  AuthService({SupabaseService? supabaseService})
-      : _supabaseService = supabaseService ?? SupabaseService();
+  AuthService({
+    SupabaseService? supabaseService,
+    ErrorReporter? errorReporter,
+  })  : _supabaseService = supabaseService ?? SupabaseService(),
+        _errorReporter = errorReporter ?? const NoOpErrorReporter();
 
   final SupabaseService _supabaseService;
+  final ErrorReporter _errorReporter;
 
   Stream<SupabaseAuthProfile?> get authStateChanges =>
       _supabaseService.watchAuthProfiles();
@@ -23,23 +28,46 @@ class AuthService {
   Future<SupabaseAuthProfile> signInWithEmail({
     required String email,
     required String password,
-  }) {
-    return _supabaseService.signInWithPassword(
-      email: email,
-      password: password,
-    );
+  }) async {
+    try {
+      final profile = await _supabaseService.signInWithPassword(
+        email: email,
+        password: password,
+      );
+      _errorReporter.addBreadcrumb(
+        message: 'Sign-in attempt: success',
+        category: 'auth',
+      );
+      return profile;
+    } catch (error, stackTrace) {
+      _errorReporter.addBreadcrumb(
+        message: 'Sign-in attempt: failure',
+        category: 'auth',
+      );
+      await _errorReporter.captureException(
+        error,
+        stackTrace: stackTrace,
+        hint: 'auth_service_sign_in',
+      );
+      rethrow;
+    }
   }
 
   Future<SupabaseAuthProfile> signUpWithEmail({
     required String email,
     required String password,
     required String displayName,
-  }) {
-    return _supabaseService.signUp(
+  }) async {
+    final profile = await _supabaseService.signUp(
       email: email,
       password: password,
       name: displayName,
     );
+    _errorReporter.addBreadcrumb(
+      message: 'Sign-up attempt: success',
+      category: 'auth',
+    );
+    return profile;
   }
 
   Future<void> sendPasswordResetEmail(String email) {

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../shared/services/supabase_service.dart';
 import '../constants/app_constants.dart';
@@ -109,6 +110,15 @@ class LoggingInterceptor extends Interceptor {
         tag: 'HTTP',
       );
     }
+    if (!kDebugMode && Env.sentryDsn != null) {
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          message: 'HTTP request: ${options.method} ${options.uri.path}',
+          category: 'api_call',
+          data: {'method': options.method, 'path': options.uri.path},
+        ),
+      );
+    }
     handler.next(options);
   }
 
@@ -130,6 +140,17 @@ class LoggingInterceptor extends Interceptor {
         '${err.response?.statusCode ?? err.type.name} ${err.requestOptions.uri}',
         tag: 'HTTP',
         error: err.message,
+      );
+    }
+    if (!kDebugMode && Env.sentryDsn != null) {
+      Sentry.captureException(
+        err,
+        stackTrace: err.stackTrace,
+        hint: Hint.withMap({
+          'method': err.requestOptions.method,
+          'path': err.requestOptions.uri.path,
+          'status_code': err.response?.statusCode,
+        }),
       );
     }
     handler.next(err);
