@@ -4,7 +4,7 @@
 
 | Environment | Base URL |
 | --- | --- |
-| Phase 0 | `https://api.dayscent.com` |
+| Phase 0 | `https://api.autoshort.id` |
 | Phase 1.5+ | `https://api.autoshort.id` |
 | Local | `Env.apiBaseUrl`, default `http://localhost:8000` |
 
@@ -48,7 +48,7 @@ Phase 0 target: 100 requests per minute per authenticated user. API responses sh
 Example:
 
 ```bash
-curl -H "Authorization: Bearer $TOKEN" https://api.dayscent.com/auth/session
+curl -H "Authorization: Bearer $TOKEN" https://api.autoshort.id/auth/session
 ```
 
 ### Projects

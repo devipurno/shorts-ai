@@ -60,7 +60,7 @@ The release workflow validates that tag `v0.1.1` matches `pubspec.yaml` version 
 
 | Phase | Domain |
 | --- | --- |
-| Phase 0-1 | `dayscent.com` bootstrap. |
+| Phase 0-1 | `autoshort.id` bootstrap. |
 | Phase 1.5+ | `autoshort.id` brand domain. |
 
 Cloudflare Email Routing aliases: `hello@`, `support@`, `noreply@`, `devi@`, `admin@`.
