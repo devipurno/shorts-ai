@@ -64,7 +64,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Kami kirim kode OTP ke email kamu',
+                'Masukkan email lo, kami kirim link reset.',
                 style: AppTypography.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -88,7 +88,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               const SizedBox(height: AppSpacing.xl),
               AppButton(
                 key: const Key('forgot-submit'),
-                label: 'Kirim Kode OTP',
+                label: 'Kirim link reset',
                 fullWidth: true,
                 isLoading: isLoading,
                 onPressed: isLoading ? null : _submit,
@@ -107,14 +107,19 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       return;
     }
 
-    await ref.read(authProvider.notifier).sendOtp(email);
+    await ref.read(authProvider.notifier).sendPasswordResetEmail(email);
     if (!mounted || ref.read(authProvider) is AuthError) {
       return;
     }
 
-    context.go(
-      AppRoutes.otpVerifyPath(email: email, flow: 'forgot-password'),
-    );
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          key: Key('forgot-success-snackbar'),
+          content: Text('Link reset terkirim. Cek inbox + spam folder.'),
+        ),
+      );
   }
 
   void _goBack() {

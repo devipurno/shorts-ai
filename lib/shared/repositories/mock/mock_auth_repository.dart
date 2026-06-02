@@ -82,6 +82,11 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> sendPasswordResetEmail(String email) async {
+    await sendOtp(email);
+  }
+
+  @override
   Future<User?> verifyOtp({
     required String email,
     required String token,

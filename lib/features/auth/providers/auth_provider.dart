@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -8,6 +9,7 @@ import '../../../core/errors/app_exception.dart';
 import '../../../shared/models/user.dart' as data_user;
 import '../../../shared/repositories/auth_repository.dart';
 import '../../../shared/repositories/providers.dart';
+import '../../../shared/services/auth_service.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../models/user.dart';
 
@@ -16,8 +18,11 @@ part 'auth_provider.g.dart';
 @Riverpod(keepAlive: true)
 Duration authMockDelay(Ref ref) => const Duration(seconds: 1);
 
+final authServiceProvider = Provider<AuthService>((ref) => AuthService());
+
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  final useRepository = Env.useSupabase && SupabaseService.isInitialized;
+  final useRepository =
+      !Env.useMockAuth && Env.useSupabase && SupabaseService.isInitialized;
   return AuthNotifier(
     mockDelay: ref.watch(authMockDelayProvider),
     repository: useRepository ? ref.watch(authRepositoryProvider) : null,
@@ -65,6 +70,21 @@ final class Authenticated extends AuthState {
   int get hashCode => user.hashCode;
 }
 
+final class AuthSignupSuccess extends AuthState {
+  const AuthSignupSuccess(this.email);
+
+  final String email;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is AuthSignupSuccess && other.email == email;
+  }
+
+  @override
+  int get hashCode => email.hashCode;
+}
+
 final class AuthError extends AuthState {
   const AuthError(this.message);
 
@@ -87,6 +107,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   })  : _mockDelay = mockDelay,
         _repository = repository,
         super(const Unauthenticated()) {
+    _hydrateInitialUser();
     _authSubscription = _repository?.watchAuthState().listen(
       (user) {
         state = user == null
@@ -139,17 +160,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const Authenticating();
     final repository = _repository;
     if (repository != null) {
-      await _runRepositoryAction(
-        () async => Authenticated(
-          _fromDataUser(
-            await repository.signup(
-              email: email,
-              password: password,
-              name: name,
-            ),
-          ),
-        ),
-      );
+      await _runRepositoryAction(() async {
+        await repository.signup(
+          email: email,
+          password: password,
+          name: name,
+        );
+        return AuthSignupSuccess(email.trim().toLowerCase());
+      });
       return;
     }
 
@@ -160,15 +178,28 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return;
     }
 
-    state = Authenticated(
-      User(
-        id: _mockUserId(email),
-        email: email,
-        name: name.trim(),
-        tier: SubscriptionTier.free,
-        createdAt: DateTime.now(),
-      ),
-    );
+    state = AuthSignupSuccess(email.trim().toLowerCase());
+  }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    state = const Authenticating();
+    final repository = _repository;
+    if (repository != null) {
+      await _runRepositoryAction(() async {
+        await repository.sendPasswordResetEmail(email);
+        return const Unauthenticated();
+      });
+      return;
+    }
+
+    await Future<void>.delayed(_mockDelay);
+
+    if (email.trim().isEmpty || email.toLowerCase().contains('fail')) {
+      state = const AuthError('Unable to send password reset email.');
+      return;
+    }
+
+    state = const Unauthenticated();
   }
 
   Future<void> sendOtp(String email) async {
@@ -291,6 +322,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
         currentState is Authenticated ? currentState : const Unauthenticated();
   }
 
+  Future<void> _hydrateInitialUser() async {
+    final repository = _repository;
+    if (repository == null) {
+      return;
+    }
+    try {
+      final user = await repository.currentUser();
+      if (user != null) {
+        state = Authenticated(_fromDataUser(user));
+      }
+    } catch (_) {
+      // Keep mock-safe unauthenticated state if startup hydration fails.
+    }
+  }
+
   bool _shouldFail(String email, String password) {
     return email.toLowerCase().contains('fail') || password == 'fail';
   }
@@ -327,7 +373,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     if (error is AppException) {
       return error.message;
     }
-    return error.toString();
+    return friendlyAuthMessage(error.toString());
   }
 
   @override
@@ -335,4 +381,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _authSubscription?.cancel();
     super.dispose();
   }
+}
+
+String friendlyAuthMessage(String rawMessage) {
+  final message = rawMessage.toLowerCase();
+  if (message.contains('invalid_credentials') ||
+      message.contains('invalid login credentials')) {
+    return 'Email atau password salah';
+  }
+  if (message.contains('email_not_confirmed') ||
+      message.contains('email not confirmed')) {
+    return 'Cek email lo untuk verifikasi akun';
+  }
+  if (message.contains('too_many_requests') || message.contains('rate limit')) {
+    return 'Terlalu banyak percobaan, coba lagi nanti';
+  }
+  if (message.contains('user_already_exists') ||
+      message.contains('already registered')) {
+    return 'Email sudah terdaftar. Coba masuk.';
+  }
+  if (message.contains('weak_password') || message.contains('weak password')) {
+    return 'Password terlalu lemah. Min 6 chars + mix.';
+  }
+  return rawMessage;
 }

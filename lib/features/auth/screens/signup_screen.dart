@@ -47,7 +47,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     return _acceptedTerms &&
         _nameController.text.trim().isNotEmpty &&
         _emailController.text.trim().isEmail &&
-        _passwordController.text.length >= 8 &&
+        _passwordController.text.length >= 6 &&
         _confirmPasswordController.text == _passwordController.text;
   }
 
@@ -57,8 +57,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       if (next is AuthError) {
         _showError(next.message);
       }
-      if (next is Authenticated) {
-        context.go(AppRoutes.home);
+      if (next is AuthSignupSuccess) {
+        _showSignupSuccess(next.email);
       }
     });
 
@@ -213,7 +213,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       _nameError = name.isEmpty ? 'Nama wajib diisi.' : null;
       _emailError = email.isEmail ? null : 'Masukkan email yang valid.';
       _passwordError =
-          password.length >= 8 ? null : 'Password minimal 8 karakter.';
+          password.length >= 6 ? null : 'Password minimal 6 karakter.';
       _confirmPasswordError =
           confirmPassword == password ? null : 'Password tidak sama.';
     }
@@ -226,9 +226,29 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
     return name.isNotEmpty &&
         email.isEmail &&
-        password.length >= 8 &&
+        password.length >= 6 &&
         confirmPassword == password &&
         _acceptedTerms;
+  }
+
+  Future<void> _showSignupSuccess(String email) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        key: const Key('signup-success-dialog'),
+        title: const Text('Akun berhasil dibuat'),
+        content: Text('Cek email  untuk verifikasi akun.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (mounted) {
+      context.go(AppRoutes.login);
+    }
   }
 
   void _showTermsDialog() {

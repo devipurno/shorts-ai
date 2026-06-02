@@ -73,6 +73,14 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> sendPasswordResetEmail(String email) async {
+    await _guardAuth<void>(
+      () => _service.sendPasswordResetEmail(email),
+      fallbackMessage: 'Unable to send Supabase password reset email.',
+    );
+  }
+
+  @override
   Future<User?> verifyOtp({
     required String email,
     required String token,
@@ -128,7 +136,9 @@ class SupabaseAuthRepository implements AuthRepository {
     Map<String, dynamic>? row,
   }) {
     final now = DateTime.now().toUtc();
-    final metadataName = authProfile.metadata['name']?.toString();
+    final metadataName =
+        (authProfile.metadata['display_name'] ?? authProfile.metadata['name'])
+            ?.toString();
     final data = <String, Object?>{
       'id': authProfile.id,
       'email': authProfile.email,

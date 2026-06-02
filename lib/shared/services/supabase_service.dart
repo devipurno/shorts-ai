@@ -14,6 +14,12 @@ class SupabaseService {
   static bool get isInitialized => _initialized;
 
   static Future<void> initializeFromEnv() async {
+    if (Env.useMockAuth) {
+      debugPrint('[Auth] Using MOCK auth (USE_MOCK_AUTH=true)');
+      _initialized = false;
+      return;
+    }
+
     final url = Env.supabaseUrl;
     final key = Env.supabaseClientKey;
     if (url == null || key == null) {
@@ -40,6 +46,24 @@ class SupabaseService {
   bool get isAuthenticated => currentSession != null;
 
   String? get accessToken => currentSession?.accessToken;
+
+  String? get displayName {
+    final user = currentUser;
+    if (user == null) {
+      return null;
+    }
+    final metadata = user.userMetadata ?? const <String, dynamic>{};
+    final metadataName = metadata['display_name'] ?? metadata['name'];
+    final name = metadataName?.toString().trim();
+    if (name != null && name.isNotEmpty) {
+      return name;
+    }
+    final email = user.email;
+    if (email != null && email.contains('@')) {
+      return email.split('@').first;
+    }
+    return 'User';
+  }
 
   SupabaseAuthProfile? get currentAuthProfile => _mapSupabaseUser(currentUser);
 
@@ -68,7 +92,7 @@ class SupabaseService {
     final response = await client.auth.signUp(
       email: email,
       password: password,
-      data: {'name': name},
+      data: {'display_name': name, 'name': name},
     );
     return _requireUser(response.user);
   }
@@ -77,6 +101,13 @@ class SupabaseService {
     return client.auth.signInWithOtp(
       email: email,
       shouldCreateUser: false,
+    );
+  }
+
+  Future<void> sendPasswordResetEmail(String email) {
+    return client.auth.resetPasswordForEmail(
+      email,
+      redirectTo: Env.supabaseRedirectUrl,
     );
   }
 

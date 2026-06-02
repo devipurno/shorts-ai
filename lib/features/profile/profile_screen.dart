@@ -31,6 +31,7 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
+    final displayName = ref.watch(displayNameProvider);
     if (user == null) {
       return const Scaffold(
         key: Key('profile-screen'),
@@ -54,6 +55,7 @@ class ProfileScreen extends ConsumerWidget {
           slivers: [
             ProfileHeader(
               user: user,
+              displayName: displayName,
               onEditProfile: () => _openEditProfile(context, ref, user),
               onUpgrade: () => context.go(AppRoutes.pricing),
             ),

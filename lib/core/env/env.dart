@@ -46,12 +46,14 @@ class Env {
       _value('SUPABASE_PUBLISHABLE_KEY');
   static String? get supabaseClientKey =>
       supabaseAnonKey ?? supabasePublishableKey;
+  static String? get supabaseRedirectUrl => _value('SUPABASE_REDIRECT_URL');
+  static bool get useMockAuth => _bool('USE_MOCK_AUTH') ?? false;
   static bool get useSupabase {
     final explicit = _bool('USE_SUPABASE');
     if (explicit != null) {
       return explicit;
     }
-    return supabaseUrl != null && supabaseClientKey != null;
+    return !useMockAuth && supabaseUrl != null && supabaseClientKey != null;
   }
 
   static String? get apiBaseUrlOrNull => _value('API_BASE_URL');

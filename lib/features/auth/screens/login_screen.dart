@@ -169,7 +169,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final password = _passwordController.text;
     setState(() {
       _emailError = email.isEmail ? null : 'Masukkan email yang valid.';
-      _passwordError = password.isEmpty ? 'Password wajib diisi.' : null;
+      _passwordError =
+          password.length >= 6 ? null : 'Password minimal 6 karakter.';
     });
 
     return _emailError == null && _passwordError == null;
