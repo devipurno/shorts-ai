@@ -4,6 +4,7 @@
 /// decompose milliseconds into hours, minutes, seconds, and a sub-second
 /// fraction.  Centralising the logic here removes duplication across the
 /// ASS, SRT, and VTT exporters as well as the editor tabs.
+library;
 
 /// Decomposes [milliseconds] into `(hours, minutes, seconds, remainderMs)`.
 ({int hours, int minutes, int seconds, int remainderMs}) decomposeMs(
