@@ -164,11 +164,19 @@ class SupabaseService {
     return Map<String, dynamic>.from(row);
   }
 
+  static const _allowedAvatarExtensions = {'jpg', 'jpeg', 'png', 'gif', 'webp'};
+
   Future<String> uploadAvatar({
     required String userId,
     required File file,
   }) async {
     final extension = file.path.split('.').last.toLowerCase();
+    if (!_allowedAvatarExtensions.contains(extension)) {
+      throw ArgumentError(
+        'Unsupported avatar format ".$extension". '
+        'Allowed: ${_allowedAvatarExtensions.join(', ')}.',
+      );
+    }
     final objectPath =
         '$userId/avatar-${DateTime.now().millisecondsSinceEpoch}.$extension';
     await client.storage.from('avatars').upload(

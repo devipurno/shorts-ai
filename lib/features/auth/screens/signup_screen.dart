@@ -47,7 +47,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     return _acceptedTerms &&
         _nameController.text.trim().isNotEmpty &&
         _emailController.text.trim().isEmail &&
-        _passwordController.text.length >= 6 &&
+        _passwordController.text.length >= 8 &&
         _confirmPasswordController.text == _passwordController.text;
   }
 
@@ -213,7 +213,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       _nameError = name.isEmpty ? 'Nama wajib diisi.' : null;
       _emailError = email.isEmail ? null : 'Masukkan email yang valid.';
       _passwordError =
-          password.length >= 6 ? null : 'Password minimal 6 karakter.';
+          password.length >= 8 ? null : 'Password minimal 8 karakter.';
       _confirmPasswordError =
           confirmPassword == password ? null : 'Password tidak sama.';
     }
@@ -226,7 +226,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
     return name.isNotEmpty &&
         email.isEmail &&
-        password.length >= 6 &&
+        password.length >= 8 &&
         confirmPassword == password &&
         _acceptedTerms;
   }

@@ -25,7 +25,7 @@ preview_id = "replace-with-preview-kv-namespace-id"
 
 [env.production]
 name = "shorts-ai-ai-proxy"
-workers_dev = true
+workers_dev = false
 
 [env.production.vars]
 DAILY_RATE_LIMIT = "50"

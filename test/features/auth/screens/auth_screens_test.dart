@@ -35,7 +35,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Masukkan email yang valid.'), findsOneWidget);
-    expect(find.text('Password minimal 6 karakter.'), findsOneWidget);
+    expect(find.text('Password minimal 8 karakter.'), findsOneWidget);
   });
 
   testWidgets('signup form validates email, password length, and match',
@@ -61,7 +61,7 @@ void main() {
         find.byKey(const Key('password-strength-indicator')), findsOneWidget);
     expect(find.text('Daftar Sekarang'), findsOneWidget);
     expect(find.text('Masukkan email yang valid.'), findsOneWidget);
-    expect(find.text('Password minimal 6 karakter.'), findsOneWidget);
+    expect(find.text('Password minimal 8 karakter.'), findsOneWidget);
     expect(find.text('Password tidak sama.'), findsOneWidget);
   });
 
