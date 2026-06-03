@@ -33,12 +33,61 @@ async function parseJsonResponse(response: Response): Promise<unknown> {
   }
 }
 
-function assertPrompt(body: LlmRequest) {
+const MAX_PROMPT_LENGTH = 100_000;
+const MAX_TOKENS_UPPER = 16_384;
+const ALLOWED_ROLES = new Set(['system', 'user', 'assistant']);
+
+function badRequest(message: string): never {
+  throw new Response(JSON.stringify({
+    error: { code: 'invalid_request', message },
+  }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+}
+
+function validateRequest(body: LlmRequest) {
   if (!body.prompt && !body.messages?.length) {
-    throw new Response(JSON.stringify({
-      error: { code: 'invalid_request', message: 'Request must include prompt or messages.' },
-    }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    badRequest('Request must include prompt or messages.');
   }
+
+  if (body.prompt !== undefined && typeof body.prompt !== 'string') {
+    badRequest('prompt must be a string.');
+  }
+  if (body.prompt && body.prompt.length > MAX_PROMPT_LENGTH) {
+    badRequest(`prompt exceeds maximum length of ${MAX_PROMPT_LENGTH} characters.`);
+  }
+
+  if (body.systemPrompt !== undefined && typeof body.systemPrompt !== 'string') {
+    badRequest('systemPrompt must be a string.');
+  }
+
+  if (body.temperature !== undefined) {
+    if (typeof body.temperature !== 'number' || body.temperature < 0 || body.temperature > 2) {
+      badRequest('temperature must be a number between 0 and 2.');
+    }
+  }
+
+  if (body.maxTokens !== undefined) {
+    if (typeof body.maxTokens !== 'number' || !Number.isInteger(body.maxTokens) || body.maxTokens < 1 || body.maxTokens > MAX_TOKENS_UPPER) {
+      badRequest(`maxTokens must be an integer between 1 and ${MAX_TOKENS_UPPER}.`);
+    }
+  }
+
+  if (body.messages) {
+    if (!Array.isArray(body.messages)) {
+      badRequest('messages must be an array.');
+    }
+    for (const msg of body.messages) {
+      if (typeof msg.role !== 'string' || !ALLOWED_ROLES.has(msg.role)) {
+        badRequest(`Invalid message role "${msg.role}". Allowed: ${[...ALLOWED_ROLES].join(', ')}.`);
+      }
+      if (typeof msg.content !== 'string') {
+        badRequest('Each message must have a string content field.');
+      }
+    }
+  }
+}
+
+function assertPrompt(body: LlmRequest) {
+  validateRequest(body);
 }
 
 export async function proxyGemini(body: LlmRequest, apiKey: string): Promise<ProxyResponse> {

@@ -20,7 +20,8 @@ app.notFound((c) => c.json({ error: { code: 'not_found', message: 'Route not fou
 
 app.onError((error, c) => {
   if (error instanceof Response) return error;
-  return c.json({ error: { code: 'internal_error', message: error.message || 'Unexpected error.' } }, 500);
+  console.error('[ai-proxy] unhandled error:', error);
+  return c.json({ error: { code: 'internal_error', message: 'Unexpected error.' } }, 500);
 });
 
 export default app;
