@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/number_format.dart';
 import '../../../shared/widgets/cards/app_card.dart';
 import '../providers/profile_provider.dart';
 
@@ -23,35 +24,25 @@ class StatsRow extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         children: [
           _StatCard(
-            value: _compact(stats.videosCreated),
+            value: compactNumber(stats.videosCreated),
             label: 'Videos Created',
             icon: Icons.movie_creation_outlined,
           ),
           const SizedBox(width: AppSpacing.md),
           _StatCard(
-            value: _compact(stats.totalViews),
+            value: compactNumber(stats.totalViews),
             label: 'Total Views',
             icon: Icons.visibility_outlined,
           ),
           const SizedBox(width: AppSpacing.md),
           _StatCard(
-            value: _compact(stats.followersGained),
+            value: compactNumber(stats.followersGained),
             label: 'Followers Gained',
             icon: Icons.trending_up_rounded,
           ),
         ],
       ),
     );
-  }
-
-  String _compact(int value) {
-    if (value >= 1000000) {
-      return '${(value / 1000000).toStringAsFixed(1)}M';
-    }
-    if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)}K';
-    }
-    return value.toString();
   }
 }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/time_format.dart';
 import '../providers/editor_provider.dart';
 import '../widgets/timeline/timeline_widget.dart';
 
@@ -59,7 +60,7 @@ class SplitTab extends StatelessWidget {
               child: ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.call_split_rounded),
-                title: Text(_formatTime(split)),
+                title: Text(formatEditorTimeShort(split)),
                 trailing: IconButton(
                   icon: const Icon(Icons.close_rounded),
                   onPressed: () => notifier.removeSplit(split),
@@ -68,12 +69,5 @@ class SplitTab extends StatelessWidget {
             ),
       ],
     );
-  }
-
-  String _formatTime(int ms) {
-    final minutes = ms ~/ 60000;
-    final seconds = (ms % 60000) ~/ 1000;
-    return '${minutes.toString().padLeft(2, '0')}:'
-        '${seconds.toString().padLeft(2, '0')}';
   }
 }

@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/number_format.dart';
 import '../../../shared/widgets/cards/app_card.dart';
 import '../providers/analytics_provider.dart';
 
@@ -55,7 +56,7 @@ class KpiCard extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              _formatNumber(metric.value),
+              compactNumber(metric.value),
               style: AppTypography.headlineMedium.copyWith(
                 color: AppColors.goldLight,
               ),
@@ -74,14 +75,4 @@ class KpiCard extends StatelessWidget {
       ),
     );
   }
-}
-
-String _formatNumber(int value) {
-  if (value >= 1000000) {
-    return '${(value / 1000000).toStringAsFixed(1)}M';
-  }
-  if (value >= 1000) {
-    return '${(value / 1000).toStringAsFixed(1)}K';
-  }
-  return value.toString();
 }

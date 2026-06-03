@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/time_format.dart';
 import '../../../shared/widgets/inputs/text_input.dart';
 import '../providers/editor_provider.dart';
 import '../widgets/timeline/timeline_widget.dart';
@@ -29,10 +30,10 @@ class _TrimTabState extends State<TrimTab> {
   void initState() {
     super.initState();
     _startController = TextEditingController(
-      text: _formatTime(widget.state.trimStartMs),
+      text: formatEditorTimeFull(widget.state.trimStartMs),
     );
     _endController = TextEditingController(
-      text: _formatTime(widget.state.trimEndMs),
+      text: formatEditorTimeFull(widget.state.trimEndMs),
     );
   }
 
@@ -40,10 +41,10 @@ class _TrimTabState extends State<TrimTab> {
   void didUpdateWidget(covariant TrimTab oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.state.trimStartMs != widget.state.trimStartMs) {
-      _startController.text = _formatTime(widget.state.trimStartMs);
+      _startController.text = formatEditorTimeFull(widget.state.trimStartMs);
     }
     if (oldWidget.state.trimEndMs != widget.state.trimEndMs) {
-      _endController.text = _formatTime(widget.state.trimEndMs);
+      _endController.text = formatEditorTimeFull(widget.state.trimEndMs);
     }
   }
 
@@ -118,15 +119,6 @@ class _TrimTabState extends State<TrimTab> {
         ],
       ],
     );
-  }
-
-  String _formatTime(int ms) {
-    final minutes = ms ~/ 60000;
-    final seconds = (ms % 60000) ~/ 1000;
-    final millis = ms % 1000;
-    return '${minutes.toString().padLeft(2, '0')}:'
-        '${seconds.toString().padLeft(2, '0')}.'
-        '${millis.toString().padLeft(3, '0')}';
   }
 
   int? _parseTime(String value) {
