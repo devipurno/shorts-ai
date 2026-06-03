@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shorts_ai/core/error_reporter.dart';
 import 'package:shorts_ai/features/auth/models/user.dart';
 import 'package:shorts_ai/features/editor/providers/editor_provider.dart';
 import 'package:shorts_ai/features/editor/services/ffmpeg_service.dart';
@@ -8,6 +9,7 @@ void main() {
     final notifier = EditorNotifier(
       videoId: 'video_1',
       ffmpegService: FfmpegService(),
+      errorReporter: const NoOpErrorReporter(),
     );
 
     expect(notifier.setTrim(startMs: 1000, endMs: 5000), isTrue);
@@ -39,6 +41,7 @@ void main() {
     final notifier = EditorNotifier(
       videoId: 'video_1',
       ffmpegService: FfmpegService(),
+      errorReporter: const NoOpErrorReporter(),
     );
 
     final ok = notifier.setTrim(startMs: 5000, endMs: 5500);
@@ -53,6 +56,7 @@ void main() {
     final notifier = EditorNotifier(
       videoId: 'video_1',
       ffmpegService: FfmpegService(),
+      errorReporter: const NoOpErrorReporter(),
     );
 
     final freeAllowed = notifier.setExportResolution(
@@ -77,6 +81,7 @@ void main() {
     final notifier = EditorNotifier(
       videoId: 'video_1',
       ffmpegService: FfmpegService(),
+      errorReporter: const NoOpErrorReporter(),
     );
 
     final output = await notifier.export();

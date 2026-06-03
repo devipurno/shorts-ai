@@ -6,6 +6,7 @@ import 'package:lottie/lottie.dart';
 
 import '../../core/constants/asset_paths.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/logger.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../routing/routes.dart';
@@ -43,7 +44,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       final preferences = await ref.read(preferencesServiceProvider.future);
       hasCompletedOnboarding =
           preferences.getBool(hasCompletedOnboardingKey) ?? false;
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.w(
+        'Failed to read onboarding preference, defaulting to false',
+        tag: 'Splash',
+        error: error,
+        stackTrace: stackTrace,
+      );
       hasCompletedOnboarding = false;
     }
 

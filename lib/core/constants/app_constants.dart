@@ -2,6 +2,8 @@
 
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../utils/logger.dart';
+
 class AppConstants {
   AppConstants._();
 
@@ -29,7 +31,13 @@ class AppConstants {
     try {
       final info = await PackageInfo.fromPlatform();
       APP_VERSION = info.version;
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.w(
+        'PackageInfo unavailable, using fallback version',
+        tag: 'AppConstants',
+        error: error,
+        stackTrace: stackTrace,
+      );
       APP_VERSION = '0.1.0';
     }
   }

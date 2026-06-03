@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../../utils/logger.dart';
 import 'upstash_client.dart';
 
 /// Public API surface for `AICache`.
@@ -20,7 +21,13 @@ class AICache {
         if (value != null) {
           return value;
         }
-      } catch (_) {
+      } catch (error, stackTrace) {
+        AppLogger.w(
+          'Upstash get failed, falling back to memory cache',
+          tag: 'AICache',
+          error: error,
+          stackTrace: stackTrace,
+        );
         _upstashAvailable = false;
       }
     }
@@ -41,7 +48,13 @@ class AICache {
       try {
         await _upstash!.set(key, value, ttl: ttl);
         return;
-      } catch (_) {
+      } catch (error, stackTrace) {
+        AppLogger.w(
+          'Upstash set failed, falling back to memory cache',
+          tag: 'AICache',
+          error: error,
+          stackTrace: stackTrace,
+        );
         _upstashAvailable = false;
       }
     }
@@ -57,7 +70,13 @@ class AICache {
     if (_canTryUpstash) {
       try {
         await _upstash!.delete(key);
-      } catch (_) {
+      } catch (error, stackTrace) {
+        AppLogger.w(
+          'Upstash delete failed',
+          tag: 'AICache',
+          error: error,
+          stackTrace: stackTrace,
+        );
         _upstashAvailable = false;
       }
     }

@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/env/env.dart';
 import '../../../core/error_reporter.dart';
+import '../../../core/utils/logger.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/models/user.dart' as data_user;
 import '../../../shared/repositories/auth_repository.dart';
@@ -347,8 +348,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (user != null) {
         state = Authenticated(_fromDataUser(user));
       }
-    } catch (_) {
-      // Keep mock-safe unauthenticated state if startup hydration fails.
+    } catch (error, stackTrace) {
+      AppLogger.w(
+        'Startup user hydration failed, staying unauthenticated',
+        tag: 'Auth',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 

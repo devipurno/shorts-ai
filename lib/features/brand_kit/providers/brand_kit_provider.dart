@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
+import '../../../core/utils/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -276,7 +278,13 @@ class BrandKitNotifier extends StateNotifier<BrandKitState> {
     try {
       final json = jsonDecode(raw) as Map<String, dynamic>;
       return BrandKitStateFromDraft.fromJson(json);
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.w(
+        'Failed to decode brand kit draft',
+        tag: 'BrandKit',
+        error: error,
+        stackTrace: stackTrace,
+      );
       return null;
     }
   }
