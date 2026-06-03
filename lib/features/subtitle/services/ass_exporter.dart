@@ -1,3 +1,4 @@
+import '../../../core/utils/time_format.dart';
 import '../../../shared/models/subtitle.dart';
 
 class AssExporter {
@@ -38,27 +39,20 @@ class AssExporter {
       )
       ..writeln()
       ..writeln('[Events]')
-      ..writeln('Format: Layer, Start, End, Style, Name, MarginL, MarginR, '
-          'MarginV, Effect, Text');
+      ..writeln(
+        'Format: Layer, Start, End, Style, Name, MarginL, MarginR, '
+        'MarginV, Effect, Text',
+      );
 
     for (final segment in segments) {
       buffer.writeln(
-        'Dialogue: 0,${formatTimestamp(segment.startMs)},'
-        '${formatTimestamp(segment.endMs)},AutoShort,,0,0,0,,'
+        'Dialogue: 0,${formatAssTimestamp(segment.startMs)},'
+        '${formatAssTimestamp(segment.endMs)},AutoShort,,0,0,0,,'
         '${_escape(segment.text)}',
       );
     }
 
     return buffer.toString().trimRight();
-  }
-
-  static String formatTimestamp(int milliseconds) {
-    final safe = milliseconds.clamp(0, 24 * 60 * 60 * 1000);
-    final hours = safe ~/ 3600000;
-    final minutes = (safe % 3600000) ~/ 60000;
-    final seconds = (safe % 60000) ~/ 1000;
-    final centiseconds = (safe % 1000) ~/ 10;
-    return '$hours:${_two(minutes)}:${_two(seconds)}.${_two(centiseconds)}';
   }
 
   static String _assColor(String hex) {
@@ -87,6 +81,4 @@ class AssExporter {
   static String _escape(String value) {
     return value.replaceAll('\n', r'\N').replaceAll(',', r'\,');
   }
-
-  static String _two(int value) => value.toString().padLeft(2, '0');
 }

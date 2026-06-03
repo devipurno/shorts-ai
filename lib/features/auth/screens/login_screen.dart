@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/extensions/snackbar_ext.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -38,7 +39,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next is AuthError) {
-        _showError(next.message);
+        context.showErrorSnackBar(next.message);
       }
       if (next is Authenticated) {
         context.go(AppRoutes.home);
@@ -158,10 +159,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return;
     }
 
-    await ref.read(authProvider.notifier).login(
-          _emailController.text.trim(),
-          _passwordController.text,
-        );
+    await ref
+        .read(authProvider.notifier)
+        .login(_emailController.text.trim(), _passwordController.text);
   }
 
   bool _validate() {
@@ -193,18 +193,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         const SnackBar(content: Text('Google sign-in masih mock.')),
-      );
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          key: const Key('auth-error-snackbar'),
-          content: Text(message),
-          backgroundColor: AppColors.error,
-        ),
       );
   }
 }

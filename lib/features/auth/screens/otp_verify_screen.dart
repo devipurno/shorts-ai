@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/extensions/snackbar_ext.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -53,7 +54,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
   Widget build(BuildContext context) {
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next is AuthError) {
-        _showError(next.message);
+        context.showErrorSnackBar(next.message);
       }
     });
 
@@ -103,10 +104,11 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
               ),
               const SizedBox(height: AppSpacing.xl),
               Center(
-                  child: _ResendControl(
-                secondsRemaining: _secondsRemaining,
-                onResend: isLoading ? null : _resend,
-              )),
+                child: _ResendControl(
+                  secondsRemaining: _secondsRemaining,
+                  onResend: isLoading ? null : _resend,
+                ),
+              ),
               const SizedBox(height: AppSpacing.xl),
               AppButton(
                 key: const Key('otp-submit'),
@@ -188,18 +190,6 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
       return;
     }
     context.go(AppRoutes.forgotPassword);
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          key: const Key('auth-error-snackbar'),
-          content: Text(message),
-          backgroundColor: AppColors.error,
-        ),
-      );
   }
 }
 

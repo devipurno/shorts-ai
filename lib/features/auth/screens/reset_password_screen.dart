@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/extensions/snackbar_ext.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -12,10 +13,7 @@ import '../providers/auth_provider.dart';
 import '../widgets/password_strength_indicator.dart';
 
 class ResetPasswordScreen extends ConsumerStatefulWidget {
-  const ResetPasswordScreen({
-    super.key,
-    required this.email,
-  });
+  const ResetPasswordScreen({super.key, required this.email});
 
   final String email;
 
@@ -41,7 +39,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   Widget build(BuildContext context) {
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next is AuthError) {
-        _showError(next.message);
+        context.showErrorSnackBar(next.message);
       }
     });
 
@@ -117,9 +115,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       return;
     }
 
-    await ref.read(authProvider.notifier).resetPassword(
-          _passwordController.text,
-        );
+    await ref
+        .read(authProvider.notifier)
+        .resetPassword(_passwordController.text);
     if (!mounted || ref.read(authProvider) is AuthError) {
       return;
     }
@@ -154,17 +152,5 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     } else {
       setState(() {});
     }
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          key: const Key('auth-error-snackbar'),
-          content: Text(message),
-          backgroundColor: AppColors.error,
-        ),
-      );
   }
 }

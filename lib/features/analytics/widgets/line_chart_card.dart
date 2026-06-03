@@ -4,14 +4,12 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/number_format.dart';
 import '../../../shared/widgets/cards/app_card.dart';
 import '../providers/analytics_provider.dart';
 
 class ViewsLineChartCard extends StatelessWidget {
-  const ViewsLineChartCard({
-    super.key,
-    required this.points,
-  });
+  const ViewsLineChartCard({super.key, required this.points});
 
   final List<TimeSeriesPoint> points;
 
@@ -76,7 +74,7 @@ class ViewsLineChartCard extends StatelessWidget {
                         return SideTitleWidget(
                           meta: meta,
                           child: Text(
-                            _compact(value),
+                            compactNumber(value),
                             style: AppTypography.labelSmall.copyWith(
                               color: AppColors.textTertiary,
                             ),
@@ -126,14 +124,4 @@ class ViewsLineChartCard extends StatelessWidget {
       ),
     );
   }
-}
-
-String _compact(double value) {
-  if (value >= 1000000) {
-    return '${(value / 1000000).toStringAsFixed(1)}M';
-  }
-  if (value >= 1000) {
-    return '${(value / 1000).toStringAsFixed(0)}K';
-  }
-  return value.round().toString();
 }

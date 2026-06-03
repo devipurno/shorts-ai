@@ -4,8 +4,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/time_format.dart';
 import '../../../shared/models/subtitle.dart';
-import '../services/srt_exporter.dart';
 
 class SubtitleTimeline extends StatelessWidget {
   const SubtitleTimeline({
@@ -77,7 +77,7 @@ class SubtitleTimeline extends StatelessWidget {
   }
 
   String _shortTime(int ms) {
-    final formatted = SrtExporter.formatTimestamp(ms);
+    final formatted = formatSrtTimestamp(ms);
     return formatted.substring(3, 8);
   }
 }
