@@ -87,10 +87,9 @@ void main() {
 
   group('AIResultX', () {
     test('isSuccess returns true for Success', () {
-      const result =
-          Result<LLMResponse, AIProviderError>.success(
-            LLMResponse(text: 'hi', provider: 'test'),
-          );
+      const result = Result<LLMResponse, AIProviderError>.success(
+        LLMResponse(text: 'hi', provider: 'test'),
+      );
       expect(result.isSuccess, isTrue);
     });
 
@@ -102,10 +101,9 @@ void main() {
     });
 
     test('valueOrNull returns value for Success', () {
-      const result =
-          Result<LLMResponse, AIProviderError>.success(
-            LLMResponse(text: 'hello', provider: 'gemini'),
-          );
+      const result = Result<LLMResponse, AIProviderError>.success(
+        LLMResponse(text: 'hello', provider: 'gemini'),
+      );
       expect(result.valueOrNull, isNotNull);
       expect(result.valueOrNull!.text, 'hello');
     });
@@ -125,10 +123,9 @@ void main() {
     });
 
     test('errorOrNull returns null for Success', () {
-      const result =
-          Result<LLMResponse, AIProviderError>.success(
-            LLMResponse(text: 'ok', provider: 'test'),
-          );
+      const result = Result<LLMResponse, AIProviderError>.success(
+        LLMResponse(text: 'ok', provider: 'test'),
+      );
       expect(result.errorOrNull, isNull);
     });
   });

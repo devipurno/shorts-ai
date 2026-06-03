@@ -35,7 +35,8 @@ void main() {
     });
 
     test('maps connectionTimeout to NetworkException', () {
-      final result = mapDioError(makeDioError(DioExceptionType.connectionTimeout));
+      final result =
+          mapDioError(makeDioError(DioExceptionType.connectionTimeout));
       expect(result, isA<NetworkException>());
       expect(result.code, 'network_timeout');
     });
@@ -59,7 +60,8 @@ void main() {
     });
 
     test('maps connectionError to NetworkException', () {
-      final result = mapDioError(makeDioError(DioExceptionType.connectionError));
+      final result =
+          mapDioError(makeDioError(DioExceptionType.connectionError));
       expect(result, isA<NetworkException>());
       expect(result.code, 'connection_error');
     });

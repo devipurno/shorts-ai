@@ -160,5 +160,4 @@ Subscription _subscription(String id) {
   );
 }
 
-Map<String, Object?> _subscriptionJson(String id) =>
-    _subscription(id).toJson();
+Map<String, Object?> _subscriptionJson(String id) => _subscription(id).toJson();

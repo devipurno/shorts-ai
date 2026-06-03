@@ -33,7 +33,8 @@ void main() {
       expect(await tracker.canUseProvider('unlimited'), isTrue);
     });
 
-    test('canUseProvider returns true for unknown provider (no quota)', () async {
+    test('canUseProvider returns true for unknown provider (no quota)',
+        () async {
       final tracker = createTracker();
       expect(await tracker.canUseProvider('unknown'), isTrue);
     });
