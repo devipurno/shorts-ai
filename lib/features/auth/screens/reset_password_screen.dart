@@ -13,10 +13,7 @@ import '../providers/auth_provider.dart';
 import '../widgets/password_strength_indicator.dart';
 
 class ResetPasswordScreen extends ConsumerStatefulWidget {
-  const ResetPasswordScreen({
-    super.key,
-    required this.email,
-  });
+  const ResetPasswordScreen({super.key, required this.email});
 
   final String email;
 
@@ -118,9 +115,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       return;
     }
 
-    await ref.read(authProvider.notifier).resetPassword(
-          _passwordController.text,
-        );
+    await ref
+        .read(authProvider.notifier)
+        .resetPassword(_passwordController.text);
     if (!mounted || ref.read(authProvider) is AuthError) {
       return;
     }
@@ -137,10 +134,12 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     final password = _passwordController.text;
     final confirm = _confirmPasswordController.text;
     setState(() {
-      _passwordError =
-          password.length >= 8 ? null : 'Password minimal 8 karakter.';
-      _confirmPasswordError =
-          confirm == password ? null : 'Password tidak sama.';
+      _passwordError = password.length >= 8
+          ? null
+          : 'Password minimal 8 karakter.';
+      _confirmPasswordError = confirm == password
+          ? null
+          : 'Password tidak sama.';
     });
 
     return _passwordError == null && _confirmPasswordError == null;
@@ -156,5 +155,4 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       setState(() {});
     }
   }
-
 }

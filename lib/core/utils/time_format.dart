@@ -23,24 +23,21 @@ String _pad(int value, int width) => value.toString().padLeft(width, '0');
 
 /// Formats [milliseconds] as `HH:MM:SS,mmm` (SRT).
 String formatSrtTimestamp(int milliseconds) {
-  final (:hours, :minutes, :seconds, :remainderMs) =
-      decomposeMs(milliseconds);
+  final (:hours, :minutes, :seconds, :remainderMs) = decomposeMs(milliseconds);
   return '${_pad(hours, 2)}:${_pad(minutes, 2)}:${_pad(seconds, 2)},'
       '${_pad(remainderMs, 3)}';
 }
 
 /// Formats [milliseconds] as `HH:MM:SS.mmm` (WebVTT).
 String formatVttTimestamp(int milliseconds) {
-  final (:hours, :minutes, :seconds, :remainderMs) =
-      decomposeMs(milliseconds);
+  final (:hours, :minutes, :seconds, :remainderMs) = decomposeMs(milliseconds);
   return '${_pad(hours, 2)}:${_pad(minutes, 2)}:${_pad(seconds, 2)}.'
       '${_pad(remainderMs, 3)}';
 }
 
 /// Formats [milliseconds] as `H:MM:SS.cc` (ASS / SSA).
 String formatAssTimestamp(int milliseconds) {
-  final (:hours, :minutes, :seconds, :remainderMs) =
-      decomposeMs(milliseconds);
+  final (:hours, :minutes, :seconds, :remainderMs) = decomposeMs(milliseconds);
   final centiseconds = remainderMs ~/ 10;
   return '$hours:${_pad(minutes, 2)}:${_pad(seconds, 2)}.'
       '${_pad(centiseconds, 2)}';

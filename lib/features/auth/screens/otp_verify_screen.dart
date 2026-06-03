@@ -104,10 +104,11 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
               ),
               const SizedBox(height: AppSpacing.xl),
               Center(
-                  child: _ResendControl(
-                secondsRemaining: _secondsRemaining,
-                onResend: isLoading ? null : _resend,
-              )),
+                child: _ResendControl(
+                  secondsRemaining: _secondsRemaining,
+                  onResend: isLoading ? null : _resend,
+                ),
+              ),
               const SizedBox(height: AppSpacing.xl),
               AppButton(
                 key: const Key('otp-submit'),
@@ -134,7 +135,9 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
       return;
     }
 
-    await ref.read(authProvider.notifier).verifyOtp(
+    await ref
+        .read(authProvider.notifier)
+        .verifyOtp(
           _code,
           email: widget.email,
           purpose: _isForgotPasswordFlow
@@ -190,7 +193,6 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
     }
     context.go(AppRoutes.forgotPassword);
   }
-
 }
 
 class _ResendControl extends StatelessWidget {

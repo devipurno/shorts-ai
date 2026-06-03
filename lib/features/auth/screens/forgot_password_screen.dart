@@ -130,5 +130,4 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     }
     context.go(AppRoutes.login);
   }
-
 }

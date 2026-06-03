@@ -169,8 +169,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     ),
                     TextButton(
                       key: const Key('signup-login-link'),
-                      onPressed:
-                          isLoading ? null : () => context.go(AppRoutes.login),
+                      onPressed: isLoading
+                          ? null
+                          : () => context.go(AppRoutes.login),
                       child: const Text('Masuk'),
                     ),
                   ],
@@ -189,7 +190,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       return;
     }
 
-    await ref.read(authProvider.notifier).signup(
+    await ref
+        .read(authProvider.notifier)
+        .signup(
           _emailController.text.trim(),
           _passwordController.text,
           _nameController.text.trim(),
@@ -213,10 +216,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     void setErrors() {
       _nameError = name.isEmpty ? 'Nama wajib diisi.' : null;
       _emailError = email.isEmail ? null : 'Masukkan email yang valid.';
-      _passwordError =
-          password.length >= 6 ? null : 'Password minimal 6 karakter.';
-      _confirmPasswordError =
-          confirmPassword == password ? null : 'Password tidak sama.';
+      _passwordError = password.length >= 6
+          ? null
+          : 'Password minimal 6 karakter.';
+      _confirmPasswordError = confirmPassword == password
+          ? null
+          : 'Password tidak sama.';
     }
 
     if (setOnly) {
@@ -270,7 +275,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       ),
     );
   }
-
 }
 
 class _TermsCheckbox extends StatelessWidget {
