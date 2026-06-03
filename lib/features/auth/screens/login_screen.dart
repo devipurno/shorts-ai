@@ -140,9 +140,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     TextButton(
                       key: const Key('login-signup-link'),
-                      onPressed: isLoading
-                          ? null
-                          : () => context.go(AppRoutes.signup),
+                      onPressed:
+                          isLoading ? null : () => context.go(AppRoutes.signup),
                       child: const Text('Daftar'),
                     ),
                   ],
@@ -170,9 +169,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final password = _passwordController.text;
     setState(() {
       _emailError = email.isEmail ? null : 'Masukkan email yang valid.';
-      _passwordError = password.length >= 6
-          ? null
-          : 'Password minimal 6 karakter.';
+      _passwordError =
+          password.length >= 6 ? null : 'Password minimal 6 karakter.';
     });
 
     return _emailError == null && _passwordError == null;

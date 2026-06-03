@@ -135,9 +135,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
       return;
     }
 
-    await ref
-        .read(authProvider.notifier)
-        .verifyOtp(
+    await ref.read(authProvider.notifier).verifyOtp(
           _code,
           email: widget.email,
           purpose: _isForgotPasswordFlow

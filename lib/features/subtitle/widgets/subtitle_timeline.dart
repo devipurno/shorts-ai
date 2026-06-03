@@ -54,9 +54,8 @@ class SubtitleTimeline extends StatelessWidget {
                         '${_shortTime(segment.startMs)} - '
                         '${_shortTime(segment.endMs)}',
                         style: AppTypography.labelSmall.copyWith(
-                          color: active
-                              ? AppColors.gold
-                              : AppColors.textTertiary,
+                          color:
+                              active ? AppColors.gold : AppColors.textTertiary,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.sm),

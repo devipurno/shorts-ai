@@ -134,12 +134,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     final password = _passwordController.text;
     final confirm = _confirmPasswordController.text;
     setState(() {
-      _passwordError = password.length >= 8
-          ? null
-          : 'Password minimal 8 karakter.';
-      _confirmPasswordError = confirm == password
-          ? null
-          : 'Password tidak sama.';
+      _passwordError =
+          password.length >= 8 ? null : 'Password minimal 8 karakter.';
+      _confirmPasswordError =
+          confirm == password ? null : 'Password tidak sama.';
     });
 
     return _passwordError == null && _confirmPasswordError == null;
