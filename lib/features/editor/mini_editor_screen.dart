@@ -7,6 +7,7 @@ import 'package:video_player/video_player.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
+import '../../core/utils/logger.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../shared/models/project.dart';
@@ -309,7 +310,13 @@ class _VideoPreviewState extends State<_VideoPreview> {
       if (mounted) {
         setState(() => _ready = true);
       }
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.w(
+        'Video player initialization failed',
+        tag: 'MiniEditor',
+        error: error,
+        stackTrace: stackTrace,
+      );
       await controller.dispose();
       if (mounted) {
         setState(() => _ready = false);

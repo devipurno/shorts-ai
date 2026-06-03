@@ -89,7 +89,13 @@ class AuthInterceptor extends QueuedInterceptor {
       retryOptions.headers[HttpHeaders.authorizationHeader] = 'Bearer $token';
       final response = await _retryDio().fetch<dynamic>(retryOptions);
       handler.resolve(response);
-    } catch (_) {
+    } catch (retryError, stackTrace) {
+      AppLogger.w(
+        'Auth token refresh retry failed',
+        tag: 'HTTP',
+        error: retryError,
+        stackTrace: stackTrace,
+      );
       handler.next(err);
     }
   }

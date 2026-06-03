@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../core/error_reporter.dart';
+import '../../../core/utils/logger.dart';
 import '../../../shared/models/script.dart';
 import '../../../shared/repositories/providers.dart';
 import '../../auth/models/user.dart';
@@ -15,6 +17,7 @@ final hookGeneratorProvider =
   return HookGeneratorNotifier(
     ref: ref,
     service: ref.watch(aiHookServiceProvider),
+    errorReporter: ref.watch(errorReporterProvider),
   );
 });
 
@@ -55,12 +58,15 @@ class HookGeneratorNotifier extends StateNotifier<HookGeneratorState> {
   HookGeneratorNotifier({
     required Ref ref,
     required AiHookService service,
+    required ErrorReporter errorReporter,
   })  : _ref = ref,
         _service = service,
+        _errorReporter = errorReporter,
         super(const HookGeneratorState(styles: [HookStyle.question]));
 
   final Ref _ref;
   final AiHookService _service;
+  final ErrorReporter _errorReporter;
 
   User? get _user => _ref.read(currentUserProvider);
   SubscriptionTier get _tier => _user?.tier ?? SubscriptionTier.free;
@@ -158,7 +164,18 @@ class HookGeneratorNotifier extends StateNotifier<HookGeneratorState> {
         generationDay: _today(),
       );
       return true;
-    } catch (error) {
+    } catch (error, stackTrace) {
+      AppLogger.e(
+        'Hook generation failed',
+        tag: 'HookGenerator',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      _errorReporter.captureException(
+        error,
+        stackTrace: stackTrace,
+        hint: 'hook_generation',
+      );
       state = state.copyWith(
         isGenerating: false,
         errorMessage: 'Gagal generate hook. Coba lagi.',

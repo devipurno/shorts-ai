@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shorts_ai/core/error_reporter.dart';
 import 'package:shorts_ai/features/auth/models/user.dart';
 import 'package:shorts_ai/features/auth/providers/current_user_provider.dart';
 import 'package:shorts_ai/features/hook_generator/providers/hook_provider.dart';
@@ -94,6 +95,7 @@ ProviderContainer _container({required User user}) {
     overrides: [
       currentUserProvider.overrideWithValue(user),
       aiHookServiceProvider.overrideWithValue(_FakeAiHookService()),
+      errorReporterProvider.overrideWithValue(const NoOpErrorReporter()),
     ],
   );
 }

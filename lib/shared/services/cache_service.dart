@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../../core/utils/logger.dart';
 import 'preferences_service.dart';
 
 /// JSON cache service with expiry semantics for lightweight local data.
@@ -123,7 +124,13 @@ class CacheService {
         return Map<String, dynamic>.from(decoded);
       }
       return null;
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.w(
+        'Failed to decode cache payload for key',
+        tag: 'CacheService',
+        error: error,
+        stackTrace: stackTrace,
+      );
       return null;
     }
   }

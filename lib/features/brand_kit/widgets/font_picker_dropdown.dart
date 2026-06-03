@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/logger.dart';
 
 const curatedBrandFonts = <String>[
   'Inter',
@@ -69,7 +70,13 @@ TextStyle _fontStyle(String font) {
       color: AppColors.textPrimary,
       fontSize: 14,
     );
-  } catch (_) {
+  } catch (error, stackTrace) {
+    AppLogger.w(
+      'Google Font "$font" unavailable, using fallback',
+      tag: 'FontPicker',
+      error: error,
+      stackTrace: stackTrace,
+    );
     return AppTypography.bodyMedium;
   }
 }

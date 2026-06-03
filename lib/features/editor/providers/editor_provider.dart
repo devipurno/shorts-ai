@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../core/error_reporter.dart';
+import '../../../core/utils/logger.dart';
 import '../../../shared/models/project.dart';
 import '../../../shared/repositories/providers.dart';
 import '../../auth/models/user.dart';
@@ -19,7 +21,11 @@ final editorProvider =
     StateNotifierProvider.family<EditorNotifier, EditorState, String>(
   (ref, videoId) {
     final service = ref.watch(ffmpegServiceProvider);
-    return EditorNotifier(videoId: videoId, ffmpegService: service);
+    return EditorNotifier(
+      videoId: videoId,
+      ffmpegService: service,
+      errorReporter: ref.watch(errorReporterProvider),
+    );
   },
 );
 
@@ -146,10 +152,13 @@ class EditorNotifier extends StateNotifier<EditorState> {
   EditorNotifier({
     required String videoId,
     required FfmpegService ffmpegService,
+    required ErrorReporter errorReporter,
   })  : _ffmpegService = ffmpegService,
+        _errorReporter = errorReporter,
         super(EditorState(videoId: videoId));
 
   final FfmpegService _ffmpegService;
+  final ErrorReporter _errorReporter;
 
   static const minTrimDurationMs = 1000;
 
@@ -295,7 +304,18 @@ class EditorNotifier extends StateNotifier<EditorState> {
         outputPath: outputPath,
       );
       return outputPath;
-    } catch (error) {
+    } catch (error, stackTrace) {
+      AppLogger.e(
+        'Video export failed',
+        tag: 'Editor',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      _errorReporter.captureException(
+        error,
+        stackTrace: stackTrace,
+        hint: 'video_export',
+      );
       state = state.copyWith(
         isExporting: false,
         errorMessage: 'Export gagal: $error',
