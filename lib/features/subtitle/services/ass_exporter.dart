@@ -39,8 +39,10 @@ class AssExporter {
       )
       ..writeln()
       ..writeln('[Events]')
-      ..writeln('Format: Layer, Start, End, Style, Name, MarginL, MarginR, '
-          'MarginV, Effect, Text');
+      ..writeln(
+        'Format: Layer, Start, End, Style, Name, MarginL, MarginR, '
+        'MarginV, Effect, Text',
+      );
 
     for (final segment in segments) {
       buffer.writeln(

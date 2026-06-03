@@ -9,11 +9,7 @@ import '../providers/editor_provider.dart';
 import '../widgets/timeline/timeline_widget.dart';
 
 class TrimTab extends StatefulWidget {
-  const TrimTab({
-    super.key,
-    required this.state,
-    required this.notifier,
-  });
+  const TrimTab({super.key, required this.state, required this.notifier});
 
   final EditorState state;
   final EditorNotifier notifier;
@@ -122,8 +118,9 @@ class _TrimTabState extends State<TrimTab> {
   }
 
   int? _parseTime(String value) {
-    final match =
-        RegExp(r'^(\d+):(\d{1,2})(?:\.(\d{1,3}))?$').firstMatch(value.trim());
+    final match = RegExp(
+      r'^(\d+):(\d{1,2})(?:\.(\d{1,3}))?$',
+    ).firstMatch(value.trim());
     if (match == null) {
       return null;
     }

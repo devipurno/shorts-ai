@@ -8,11 +8,7 @@ import '../providers/editor_provider.dart';
 import '../widgets/timeline/timeline_widget.dart';
 
 class SplitTab extends StatelessWidget {
-  const SplitTab({
-    super.key,
-    required this.state,
-    required this.notifier,
-  });
+  const SplitTab({super.key, required this.state, required this.notifier});
 
   final EditorState state;
   final EditorNotifier notifier;

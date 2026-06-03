@@ -8,10 +8,7 @@ import '../../../shared/widgets/cards/app_card.dart';
 import '../providers/profile_provider.dart';
 
 class StatsRow extends StatelessWidget {
-  const StatsRow({
-    super.key,
-    required this.stats,
-  });
+  const StatsRow({super.key, required this.stats});
 
   final ProfileStats stats;
 

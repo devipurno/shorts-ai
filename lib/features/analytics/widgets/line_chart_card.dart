@@ -9,10 +9,7 @@ import '../../../shared/widgets/cards/app_card.dart';
 import '../providers/analytics_provider.dart';
 
 class ViewsLineChartCard extends StatelessWidget {
-  const ViewsLineChartCard({
-    super.key,
-    required this.points,
-  });
+  const ViewsLineChartCard({super.key, required this.points});
 
   final List<TimeSeriesPoint> points;
 

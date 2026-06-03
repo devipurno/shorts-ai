@@ -9,10 +9,7 @@ import '../../../shared/widgets/cards/app_card.dart';
 import '../providers/analytics_provider.dart';
 
 class KpiCard extends StatelessWidget {
-  const KpiCard({
-    super.key,
-    required this.metric,
-  });
+  const KpiCard({super.key, required this.metric});
 
   final KpiMetric metric;
 
